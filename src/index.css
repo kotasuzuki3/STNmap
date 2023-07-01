@@ -14,9 +14,10 @@
 
 .slider-container {
   position: absolute;
-  bottom: 20px;
-  left: 20px;
+  z-index: 1000;
   width: 200px;
+  height: 55px;
+  padding: 10px 50px;
   background-color: #fff;
   padding: 10px;
   border-radius: 5px;
@@ -35,4 +36,92 @@
 .time-label {
   text-align: center;
   margin-top: 10px;
+}
+
+.custom-zoom-controls {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+}
+
+.zoom-slider {
+  width: 200px;
+  height: 25px;
+  background-color: #f1f1f1;
+  border-radius: 5px;
+  overflow: hidden;
+  display: flex;
+}
+
+.zoom-slider-handle {
+  width: 10px;
+  height: 25px;
+  background-color: #555;
+  cursor: pointer;
+}
+
+.custom-zoom-controls button {
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  padding: 0;
+  margin: 2px;
+  outline: none;
+}
+
+.custom-zoom-controls button:hover {
+  background-color: #f1f1f1;
+}
+
+.leaflet-control-zoomslider {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.leaflet-control-zoomslider .ui-slider {
+  background-color: #ebebeb;
+  height: 8px;
+}
+
+.leaflet-control-zoomslider .ui-slider-handle {
+  background-color: #333;
+  border: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -4px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.leaflet-control-zoomslider .ui-slider-handle:hover {
+  background-color: #666;
+}
+
+.leaflet-control-zoomslider .zoom-in-button,
+.leaflet-control-zoomslider .zoom-out-button {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px;
+  margin: 2px;
+  cursor: pointer;
+}
+
+.leaflet-control-zoomslider .zoom-in-button:hover,
+.leaflet-control-zoomslider .zoom-out-button:hover {
+  background-color: #f1f1f1;
+}
+
+.leaflet-control-zoomslider .ui-slider-range {
+  background-color: #888;
+  height: 100%;
 }
