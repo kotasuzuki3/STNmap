@@ -3,6 +3,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet.heat";
 import { addressPoints } from "./addressPoints";
+import "./index.css";
 
 export default function Map() {
   const mapRef = useRef(null);
@@ -53,10 +54,22 @@ export default function Map() {
     };
   }, []);
 
+  useEffect(() => {
+    const map = mapRef.current;
+    const timeSliderContainer = document.querySelector(".slider-container");
+    const zoomControlContainer = map.zoomControl.getContainer();
+    timeSliderContainer.style.top = zoomControlContainer.offsetHeight + "px";
+    timeSliderContainer.style.right = "10px";
+    map.getPanes().overlayPane.appendChild(timeSliderContainer);
+  }, []);
+
   return (
-    <div>
-      <div ref={mapRef} style={{ height: "80vh" }}></div>
-      <div>
+    <div className="map-container">
+      <div ref={mapRef} className="map"></div>
+      <div className="slider-container">
+        <label htmlFor="timeSlider" className="slider-label">
+          Time Slider
+        </label>
         <input
           ref={timeSliderRef}
           id="timeSlider"
@@ -65,11 +78,10 @@ export default function Map() {
           max="100"
           step="1"
           defaultValue="0"
+          className="slider"
         />
-        <label ref={timeLabelRef} id="timeLabel"></label>
+        <label ref={timeLabelRef} id="timeLabel" className="time-label"></label>
       </div>
     </div>
   );
 }
-
-

@@ -11,3 +11,19 @@ client.connect(function(err) {
   if (err) throw err;
   console.log("Connected!");
 });
+
+// Assuming you have already connected to the database using the code you provided
+
+// Example query to fetch data from a table
+const fetchTableData = async () => {
+  try {
+    const query = 'SELECT * FROM your_table'; // Replace 'your_table' with the actual table name
+    const result = await client.query(query);
+    const rows = result.rows;
+
+  } catch (error) {
+    console.error('Error executing query:', error);
+  }
+};
+
+fetchTableData();
