@@ -23,17 +23,17 @@ client.connect()
     console.error('Error connecting to PostgreSQL database', err);
   });
 
-app.get('/api/data', async (req, res) => {
-  try {
-    const query = 'SELECT first_name FROM api_victim';
-    const result = await client.query(query);
-    const rows = result.rows;
-    res.json(rows);
-  } catch (error) {
-    console.error('Error executing query:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+  app.get('/api/data', async (req, res) => {
+    try {
+      const query = 'SELECT latitude, longitude, incident_date FROM api_incident';
+      const result = await client.query(query);
+      const rows = result.rows;
+      res.json(rows);
+    } catch (error) {
+      console.error('Error executing query:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });  
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
