@@ -9,8 +9,18 @@ export default function Map() {
   const heatLayerRef = useRef(null);
   const timeSliderRef = useRef(null);
   const timeLabelRef = useRef(null);
+  const [showMethodology, setShowMethodology] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
   const [heatmapData, setHeatmapData] = useState([]);
   const [dateRange, setDateRange] = useState({ minDate: new Date(), maxDate: new Date() });
+
+  const toggleAbout = () => {
+    setShowAbout(!showAbout);
+  };
+
+  const toggleMethodology = () => {
+    setShowMethodology(!showMethodology);
+  };
 
   const filterValidData = (data) => {
     const validData = data.filter((point) => {
@@ -115,12 +125,13 @@ export default function Map() {
     
         map = L.map(mapRef.current, {
           zoomControl: false,
-        }).setView([37.0902, -95.7129], 4);
+        }).setView([37.0902, -95.7129], 5);
     
         L.tileLayer(
           "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
           {
             attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+            minZoom: 3,
             maxZoom: 16,
           }
         ).addTo(map);
@@ -171,12 +182,63 @@ export default function Map() {
 
   const handleResetZoom = () => {
     const map = mapRef.current;
-    map.setView([37.0902, -95.7129], 4);
+    map.setView([37.0902, -95.7129], 5);
   };
 
   return (
     <div className="map-container">
+      {/* ... */}
       <div ref={mapRef} className="map"></div>
+      <div className="methodology-button" onClick={toggleMethodology}>
+        Methodology
+      </div>
+      <div className ="about-button" onClick={toggleAbout}>
+        About
+      </div>
+      {showMethodology && (
+        <div className="methodology-dropdown">
+          <p>
+            SAY THEIR NAMES documents incidents that likely would not have resulted in the death of white Americans given
+            the same set of circumstances. Each reported case is examined against certain criteria as our focus for the
+            project is on those who are clearly innocent victims of police brutality, such as those with no drawn active
+            weapons or those not being actively pursued due to unlawful actions or other complexities.
+          </p>
+          <p>
+            For detailed information on our methodology{" "}
+            <a href="https://www.nonopera.org/WP2/voices/say-their-names/documents-stn/">click here</a>.
+          </p>
+        </div>
+      )}
+      {showAbout && (
+        <div className="about-dropdown">
+          <p>
+            SAY THEIR NAMES is an ongoing research and mapping project, intended to identify and remember Black Americans
+            killed by police violence since 1919. It is designed with an open-ended timeline to permit several successive
+            years of research, the concurrent development of an interactive map, and the accumulation of community contributions.
+            This map is truly a participatory and interactive project. In the coming months and years as we continue to accumulate
+            research data and develop the online interactive map, we will add the capability to submit data through an online form.
+          </p>
+          <p>
+            For now, please email us if you have additional information on a currently listed Black American, or with additional
+            names that should be included in the map. You may also fill out a form on our website <a href="https://form.jotform.com/222938481763163">HERE</a>.
+          </p>
+          <p>
+            To find out more about SAY THEIR NAMES, including research methodology, current and past researchers, and how you can participate,
+            please visit the <a href="https://www.nonopera.org/WP2/voices/say-their-names/">SAY THEIR NAMES webpage</a>.
+          </p>
+          <p>
+            SAY THEIR NAMES was formally launched in January 2021, and currently is staffed by a Lead Researcher-Supervisor, Ronald Browne;
+            a Project Manager, Dr. Saba Ayman-Nolley; Northeastern Illinois University academic supervisor for map development, Ting Liu;
+            two Northeastern Illinois University interns, research assistant Nozanin (Noza) Farrukhzoda and map developer Robert (Rob) Strzok;
+            and two volunteer community Research Assistants, Omid Nolley and Safira Newton-Matza. In addition, NON:op’s creative director,
+            Christophe Preissing, is assisting with the map development.
+          </p>
+          <p>
+            For more information, please email us at <a href="mailto:stn@nonopera.org">stn@nonopera.org</a>.
+          </p>
+        </div>
+      )}
+      {/* ... */}
       <div className="slider-container">
         <label htmlFor="timeSlider" className="slider-label">
           Time Slider

@@ -172,4 +172,75 @@
   border-radius: 13%;
 }
 
+.methodology-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  padding: 8px 12px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
 
+.methodology-button:hover {
+  background-color: #f1f1f1;
+}
+
+.methodology-dropdown {
+  position: absolute;
+  top: 45px;
+  right: 10px;
+  width: 200px;
+  height: 295px;
+  z-index: 1000;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.methodology-dropdown p {
+  margin-bottom: 10px;
+}
+
+.methodology-dropdown a {
+  color: blue;
+}
+
+.methodology-dropdown,
+.about-dropdown {
+  width: 200px;
+  height: 250px;
+  overflow: auto;
+}
+
+.about-button {
+  position: absolute;
+  top: 10px;
+  left: 1730px;
+  z-index: 1000;
+  padding: 8px 12px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.about-dropdown {
+  position: absolute;
+  top: 45px;
+  left: 1570px;
+  z-index: 1000;
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  overflow: auto;
+}
