@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet.heat";
-import "leaflet/dist/leaflet.css";
 import "./index.css";
 
 export default function Map() {
@@ -40,7 +39,22 @@ export default function Map() {
   
       // Create a new Leaflet Heatmap layer
       const heatLayer = L.heatLayer(
-        validData.map((dataPoint) => [dataPoint.latitude, dataPoint.longitude])
+        validData.map((dataPoint) => [
+          dataPoint.latitude,
+          dataPoint.longitude,
+          dataPoint.intensity,
+        ]),
+        {
+          radius: 25,
+          blur: 15,
+          gradient: {
+            0.03: "blue",
+            0.06: "cyan",
+            0.09: "yellow",
+            0.1: "orange",
+            0.15: "red",
+          },
+        }
       );
   
       // Add the new heatmap layer to the map
@@ -64,8 +78,8 @@ export default function Map() {
       // Update the time label with the selected date
       const formattedDate = currentTime.toLocaleDateString();
       timeLabelRef.current.textContent = formattedDate;
-    
   
+
       // Filter the heatmap data based on the current time
       const filteredData = validData.filter(
         (dataPoint) => new Date(dataPoint.incident_date) <= currentTime
@@ -75,7 +89,10 @@ export default function Map() {
       const heatPoints = filteredData.map((point) => [
         parseFloat(point.latitude),
         parseFloat(point.longitude),
+        point.intensity,
       ]);
+      
+
       heatLayerRef.current.setLatLngs(heatPoints);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -86,7 +103,7 @@ export default function Map() {
 
 
   useEffect(() => {
-    let map = null;
+    let map;
 
     const initializeMap = async () => {
       try {
@@ -106,15 +123,7 @@ export default function Map() {
             maxZoom: 16,
           }
         ).addTo(map);
-    
-        const heatLayer = L.heatLayer([], {
-          radius: 25,
-          blur: 15,
-        });
-        heatLayer.addTo(map);
-        
-    
-        heatLayerRef.current = heatLayer;
+  
         mapRef.current = map;
     
         const logoContainer = L.DomUtil.create("div", "logo-container");
