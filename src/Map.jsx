@@ -104,6 +104,7 @@ export default function Map() {
 
   useEffect(() => {
     let map;
+    let heatLayer;
 
     const initializeMap = async () => {
       try {
@@ -123,8 +124,22 @@ export default function Map() {
             maxZoom: 16,
           }
         ).addTo(map);
+
+        heatLayer = L.heatLayer([], {
+            radius: 25,
+            blur: 15,
+            gradient: {
+              0.03: "blue",
+              0.06: "cyan",
+              0.09: "yellow",
+              0.1: "orange",
+              0.15: "red",
+            },
+        });
+        heatLayer.addTo(map);
   
         mapRef.current = map;
+        heatLayerRef.current = heatLayer;
     
         const logoContainer = L.DomUtil.create("div", "logo-container");
         const logoImage = document.createElement("img");
@@ -147,8 +162,9 @@ export default function Map() {
       const timeSlider = timeSliderRef.current;
       timeSlider.removeEventListener("input", updateHeatmap);
 
-      if (mapRef.current) {
-        mapRef.current.remove();
+      if (map && heatLayer) {
+        map.remove();
+        heatLayerRef.current = null;
       }
     };
   }, []);
