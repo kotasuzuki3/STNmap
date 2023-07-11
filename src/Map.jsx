@@ -125,7 +125,7 @@ export default function Map() {
     
         map = L.map(mapRef.current, {
           zoomControl: false,
-        }).setView([37.0902, -95.7129], 5);
+        }).setView([37.0902, -95.7129], 4.4);
     
         L.tileLayer(
           "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
@@ -182,7 +182,7 @@ export default function Map() {
 
   const handleResetZoom = () => {
     const map = mapRef.current;
-    map.setView([37.0902, -95.7129], 5);
+    map.setView([37.0902, -95.7129], 4.4);
   };
 
   return (

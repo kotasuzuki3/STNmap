@@ -17,7 +17,7 @@ client.connect(function(err) {
 // Example query to fetch data from a table
 const fetchTableData = async () => {
   try {
-    const query = 'SELECT * FROM your_table'; // Replace 'your_table' with the actual table name
+    const query = 'SELECT * FROM api_incident'; 
     const result = await client.query(query);
     const rows = result.rows;
 

@@ -221,7 +221,7 @@
 .about-button {
   position: absolute;
   top: 10px;
-  left: 1730px;
+  left: 1255px;
   z-index: 1000;
   padding: 8px 12px;
   background-color: #fff;
@@ -234,7 +234,7 @@
 .about-dropdown {
   position: absolute;
   top: 45px;
-  left: 1570px;
+  left: 1095px;
   z-index: 1000;
   padding: 10px;
   background-color: #fff;
