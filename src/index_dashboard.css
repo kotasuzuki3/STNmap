@@ -1,195 +1,237 @@
 /* ...Necessary Map code... */
 .map-container {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-  }
-  
-.map {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
 
+.map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
 
 /* ...Necessary Logo code... */
 .logo-container {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 1001;
-  }
-  
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1001;
+}
+
 .logo-container img {
-    width: 100px;
-    height: 100px;
-    border-radius: 13%;
-  }
+  width: 100px;
+  height: 100px;
+  border-radius: 13%;
+}
+
 /* ...Necessary Dashboard code... */
 
 .dashboard {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 250px; /* Adjust the width as needed */
-    height: 100vh;
-    background-color: #8C8C8D;
-    z-index: 1000;
-    padding: 20px;
-    overflow-y: auto;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 250px; /* Adjust the width as needed */
+  height: 100vh;
+  background-color: #8C8C8D;
+  z-index: 1000;
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease; /* Update the transition property */
+}
+
+.dashboard.collapsed {
+  width: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: transparent;
+  box-shadow: none;
+  transition: all 0.3s ease; /* Update the transition property */
+}
+
+
+.dashboard.collapsed .dashboard-content {
+  display: none; /* Hide the dashboard content when collapsed */
+}
+
 .dashboard-toggle {
-    border: none;
-    background-color: transparent;
-    cursor: pointer;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #000;
-    font-size: 16px;
-    z-index: 1002; /* Ensure the button is above the logo */
-  }
-  
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-size: 16px;
+  z-index: 1002;
+  position: absolute;
+  top: 10px;
+  right: -20px;
+}
+
 .dashboard-toggle img {
-    width: 24px;
-    height: 24px;
-  }
-  
+  width: 24px;
+  height: 24px;
+}
+
 .dashboard-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-  }
-  
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
 .dashboard-title {
-    font-weight: bold;
-    font-size: 18px;
-  }
-  
+  font-weight: bold;
+  font-size: 18px;
+}
+
 .dashboard-content {
-    margin-top: 20px;
-    z-index: 1001;
-  }
-  
+  margin-top: 20px;
+  z-index: 1001;
+}
+
 .dashboard-section {
-    margin-bottom: 20px;
-  }
-  
+  margin-bottom: 20px;
+}
+
 .dashboard-section-title {
-    font-weight: bold;
-    margin-bottom: 10px;
-  }
-  
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
 .dashboard-section-content {
-    font-size: 14px;
-  }
-  
+  font-size: 14px;
+}
+
 .dashboard-section-content p {
-    margin-bottom: 10px;
-  }
-  
+  margin-bottom: 10px;
+}
+
 .dashboard-icons {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
 .dashboard-icons .dashboard-icon {
-    width: 16px;
-    height: 16px;
-    margin-right: 5px;
-    background-color: transparent;
-    cursor: pointer;
-  }
-  
+  width: 16px;
+  height: 16px;
+  margin-right: 5px;
+  background-color: transparent;
+  cursor: pointer;
+}
+
 .dashboard-icons img {
-    width: 16px;
-    height: 16px;
-    margin-right: 5px;
-  }
-  
+  width: 16px;
+  height: 16px;
+  margin-right: 5px;
+}
+
 .reset-zoom-button {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 1000;
-    padding: 8px 12px;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+  padding: 8px 12px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .reset-zoom-button img {
-    width: 24px;
-    height: 24px;
-  }
+  width: 24px;
+  height: 24px;
+}
 
 .popup {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 200px;
-    height: 150px;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 10px;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    overflow: hidden;
-  }
-  
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 200px;
+  height: 150px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  overflow: hidden;
+}
+
 .popup:hover {
-    overflow: auto; /* Show the scrollbar when hovered */
-  }
-  
+  overflow: auto; /* Show the scrollbar when hovered */
+}
+
 .popup-content {
-    max-height: 150px; /* Set the maximum height of the popup */
-  }
-  
-  .dashboard-reopen {
-    position: absolute;
-    top: 10px;
-    left: 35px; /* Adjust the left position as needed */
-    z-index: 1002; /* Ensure the button is above the logo */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #000;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  
-  .dashboard-reopen img {
-    width: 24px;
-    height: 24px;
-  }
-  
+  max-height: 150px; /* Set the maximum height of the popup */
+}
+
+.dashboard-reopen {
+  position: absolute;
+  top: 10px;
+  left: 35px; /* Adjust the left position as needed */
+  z-index: 1002; /* Ensure the button is above the logo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.dashboard-reopen img {
+  width: 24px;
+  height: 24px;
+}
+
 .reopen-button {
-    position: absolute;
-    top: 10px;
-    left: 45px;
-    z-index: 1001;
-    padding: 5px;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 12px;
-    cursor: pointer;
-  }
-  
+  position: absolute;
+  top: 10px;
+  left: 45px;
+  z-index: 1001;
+  padding: 5px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
 .reopen-button:hover {
-    background-color: #f1f1f1;
-  }
+  background-color: #f1f1f1;
+}
+
+/* Additional styles for collapsed background */
+.dashboard.collapsed ~ .map-container {
+  left: 0;
+  transition: left 0.3s ease; /* Add transition for smooth animation */
+}
+
+.dashboard.collapsed .map {
+  opacity: 1;
+  transition: opacity 0.3s ease; /* Add transition for smooth animation */
+}
+
+.dashboard.collapsed ~ .logo-container {
+  left: 10px;
+  transition: left 0.3s ease; /* Add transition for smooth animation */
+}
+.reopen-button {
+  transition: opacity 0.3s ease;
+  z-index: 999;
+}
+
+.reopen-button.visible {
+  opacity: 1;
+}
