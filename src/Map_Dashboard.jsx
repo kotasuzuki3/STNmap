@@ -10,13 +10,14 @@ export default function Map() {
   const timeSliderRef = useRef(null);
   const timeLabelRef = useRef(null);
   const [showMethodology, setShowMethodology] = useState(false);
-  const [collapseDate, setCollapseDate] = useState(null);
   const [showAbout, setShowAbout] = useState(false);
-  const [showDashboard, setShowDashboard] = useState(true); // State to control the dashboard visibility
+  const [autoplay, setAutoplay] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(true);
   const [showDashboardContent, setShowDashboardContent] = useState(true);
   const [dashboardVisible, setDashboardVisible] = useState(true);
   const [heatmapData, setHeatmapData] = useState([]);
   const [dateRange, setDateRange] = useState({ minDate: new Date(), maxDate: new Date() });
+  const autoplayIntervalRef = useRef(null);
 
   const toggleAbout = () => {
     setShowAbout(!showAbout);
@@ -28,23 +29,72 @@ export default function Map() {
 
   const toggleDashboard = () => {
     if (showDashboard) {
-      setCollapseDate(new Date()); // Set the collapse date when collapsing the dashboard
+      setDashboardVisible(false);
+    } else {
+      setDashboardVisible(true);
     }
     setShowDashboard(!showDashboard);
-    setDashboardVisible(!dashboardVisible);
+  };
+
+  const handleAutoplay = () => {
+    if (autoplay) {
+      clearInterval(autoplayIntervalRef.current);
+    } else {
+      startAutoplay();
+    }
+    setAutoplay(!autoplay);
+  };
+
+  const startAutoplay = () => {
+    const minDate = dateRange.minDate;
+    const maxDate = dateRange.maxDate;
+    const timelineValue = timeSliderRef.current.value;
+    const endTime = maxDate.getTime();
+    const step = (endTime - minDate.getTime()) / 100;
+    const intervalDuration = 250;
+
+    let currentTime = minDate.getTime() + ((maxDate.getTime() - minDate.getTime()) * timelineValue) / 100;
+    let currentPercentage = timelineValue;
+    clearInterval(autoplayIntervalRef.current);
+
+    autoplayIntervalRef.current = setInterval(() => {
+      currentTime += step;
+      currentPercentage = ((currentTime - minDate.getTime()) / (maxDate.getTime() - minDate.getTime())) * 100;
+
+      if (currentTime >= endTime) {
+        currentTime = minDate.getTime();
+        currentPercentage = 0;
+        clearInterval(autoplayIntervalRef.current);
+        setAutoplay(false);
+      }
+
+      if (timeLabelRef.current) {
+        const currentDateTime = new Date(currentTime);
+        const formattedDate = currentDateTime.toLocaleDateString();
+        timeLabelRef.current.textContent = formattedDate;
+      }
+
+      timeSliderRef.current.value = currentPercentage;
+
+      const filteredData = heatmapData.filter((dataPoint) => new Date(dataPoint.incident_date) <= currentTime);
+
+      const heatPoints = filteredData.map((point) => [
+        parseFloat(point.latitude),
+        parseFloat(point.longitude),
+        point.intensity,
+      ]);
+
+      heatLayerRef.current.setLatLngs(heatPoints);
+    }, intervalDuration);
   };
 
   const filterValidData = (data) => {
     const validData = data
-      .filter((point) => {
-        return point.latitude !== null && point.longitude !== null;
-      })
+      .filter((point) => point.latitude !== null && point.longitude !== null)
       .map((point) => ({
         ...point,
         incident_date: new Date(point.incident_date).toISOString().split("T")[0],
       }));
-
-    console.log("Valid Data:", validData);
 
     return validData;
   };
@@ -56,12 +106,10 @@ export default function Map() {
       const validData = filterValidData(jsonData);
       setHeatmapData(validData);
 
-      // Clear previous heatmap layer
       if (heatLayerRef.current) {
         heatLayerRef.current.remove();
       }
 
-      // Create a new Leaflet Heatmap layer
       const heatLayer = L.heatLayer(
         validData.map((dataPoint) => [
           dataPoint.latitude,
@@ -81,32 +129,26 @@ export default function Map() {
         }
       );
 
-      // Add the new heatmap layer to the map
-      heatLayer.addTo(mapRef.current);
 
-      // Store the reference to the new heatmap layer for future removal
+      heatLayer.addTo(mapRef.current);
       heatLayerRef.current = heatLayer;
 
-      // Update the date range
       const dates = validData.map((point) => new Date(point.incident_date));
       const minDate = new Date(Math.min(...dates));
       const maxDate = new Date(Math.max(...dates));
       setDateRange({ minDate, maxDate });
 
-      // Get the selected date from the timeline slider
       const timelineValue = timeSliderRef.current.value;
-      const currentTime = new Date(
-        minDate.getTime() + ((maxDate.getTime() - minDate.getTime()) * timelineValue) / 100
-      );
+      const currentTime = minDate.getTime() + ((maxDate.getTime() - minDate.getTime()) * timelineValue) / 100;
 
-      // Update the time label with the selected date
-      const formattedDate = currentTime.toLocaleDateString();
-      timeLabelRef.current.textContent = formattedDate;
+      if (showDashboard && timeLabelRef.current) {
+        const currentDateTime = new Date(currentTime);
+        const formattedDate = currentDateTime.toLocaleDateString();
+        timeLabelRef.current.textContent = formattedDate;
+      }
 
-      // Filter the heatmap data based on the current time
       const filteredData = validData.filter((dataPoint) => new Date(dataPoint.incident_date) <= currentTime);
 
-      // Update the heatmap layer with the filtered data
       const heatPoints = filteredData.map((point) => [
         parseFloat(point.latitude),
         parseFloat(point.longitude),
@@ -114,8 +156,12 @@ export default function Map() {
       ]);
 
       heatLayerRef.current.setLatLngs(heatPoints);
+
+      if (autoplay) {
+        startAutoplay();
+      }
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error updating data:", error);
     }
   };
 
@@ -140,6 +186,13 @@ export default function Map() {
           maxZoom: 16,
         }).addTo(map);
 
+        const minDate = new Date(Math.min(...validData.map((point) => new Date(point.incident_date))));
+        const maxDate = new Date(Math.max(...validData.map((point) => new Date(point.incident_date))));
+        setDateRange({ minDate, maxDate });
+
+        const initialTimelineValue = 0;
+        timeSliderRef.current.value = initialTimelineValue;
+
         heatLayer = L.heatLayer([], {
           radius: 25,
           blur: 15,
@@ -157,6 +210,7 @@ export default function Map() {
         heatLayerRef.current = heatLayer;
 
         timeSliderRef.current.addEventListener("input", updateHeatmap);
+        updateHeatmap();
       } catch (error) {
         console.error("Error initializing map:", error);
       }
@@ -184,7 +238,7 @@ export default function Map() {
     <div className="map-container">
       <div ref={mapRef} className="map"></div>
       {showDashboard && (
-        <div className={`dashboard ${showDashboard ? "" : "collapsed"}`}>
+        <div className={`dashboard ${dashboardVisible ? "" : "collapsed"}`}>
           <div className="dashboard-header">
             <div className="dashboard-title"></div>
             <img
@@ -253,8 +307,14 @@ export default function Map() {
                     ref={timeSliderRef}
                     onChange={updateHeatmap}
                   />
-
                   <div className="time-label" ref={timeLabelRef}></div>
+                  <img
+                    src={autoplay ? "https://www.pngall.com/wp-content/uploads/5/Pause-Button-Transparent.png" : "https://cdn-icons-png.flaticon.com/512/2/2287.png"}
+                    alt="Play/Pause"
+                    className={`autoplay-icon ${autoplay ? "active" : ""}`}
+                    onClick={handleAutoplay}
+                    style={{ width: "25px", height: "25px" }}
+                  />
                 </div>
               </div>
             </div>
@@ -329,7 +389,7 @@ export default function Map() {
         alt="Reopen"
         className="reopen-button"
         onClick={toggleDashboard}
-        style={{ width: "25px", height: "25px", marginLeft: "-30px", marginTop: "0px"}}
+        style={{ width: "25px", height: "25px", marginLeft: "-30px", marginTop: "0px" }}
       />
     </div>
   );
