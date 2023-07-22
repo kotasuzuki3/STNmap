@@ -3,6 +3,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet.heat";
 import "./index_dashboard.css";
+import { read } from 'shapefile';
 
 export default function Map() {
   const mapRef = useRef(null);
@@ -25,6 +26,39 @@ export default function Map() {
 
   const toggleMethodology = () => {
     setShowMethodology(!showMethodology);
+  };
+
+  const loadStateBoundaries = async () => {
+    try {
+      // Read the Shapefile data
+      const stateShapefile = await read('/Users/kotasuzuki/Desktop/non-opera stn/stn-app/tl_rd22_us_state/tl_rd22_us_state.shp');
+
+      // Convert the Shapefile data to GeoJSON format
+      const stateGeoJSON = {
+        type: 'FeatureCollection',
+        features: stateShapefile.features.map((feature) => ({
+          type: 'Feature',
+          geometry: feature.geometry,
+          properties: feature.properties,
+        })),
+      };
+
+      // Create a new Leaflet GeoJSON layer from the GeoJSON data
+      const stateLayer = L.geoJSON(stateGeoJSON, {
+        style: {
+          color: 'white', // Change the color of the state outlines as needed
+          weight: 100, // Change the weight of the outlines as needed
+          fillOpacity: 100, // Set fillOpacity to 0 to make the outlines transparent
+        },
+      });
+
+      // Add the state outlines layer to the map
+      stateLayer.addTo(mapRef.current);
+
+      return stateLayer; // Return the layer so we can store it in the stateLayerRef variable
+    } catch (error) {
+      console.error('Error loading state boundaries:', error);
+    }
   };
 
   const toggleDashboard = () => {
@@ -117,8 +151,8 @@ export default function Map() {
           dataPoint.intensity,
         ]),
         {
-          radius: 25,
-          blur: 15,
+          radius: 10,
+          blur: 3,
           gradient: {
             0.03: "blue",
             0.06: "cyan",
@@ -168,6 +202,7 @@ export default function Map() {
   useEffect(() => {
     let map;
     let heatLayer;
+    let stateLayer; 
 
     const initializeMap = async () => {
       try {
@@ -185,6 +220,8 @@ export default function Map() {
           minZoom: 3,
           maxZoom: 16,
         }).addTo(map);
+
+        loadStateBoundaries();
 
         const minDate = new Date(Math.min(...validData.map((point) => new Date(point.incident_date))));
         const maxDate = new Date(Math.max(...validData.map((point) => new Date(point.incident_date))));
@@ -209,10 +246,45 @@ export default function Map() {
         mapRef.current = map;
         heatLayerRef.current = heatLayer;
 
+        stateLayer = await addStateOutlinesLayer();
+
         timeSliderRef.current.addEventListener("input", updateHeatmap);
         updateHeatmap();
       } catch (error) {
         console.error("Error initializing map:", error);
+      }
+    };
+
+    const addStateOutlinesLayer = async () => {
+      try {
+        // Read the Shapefile data
+        const stateShapefile = await read('/Users/kotasuzuki/Desktop/non-opera stn/stn-app/tl_rd22_us_state/tl_rd22_us_state.shp');
+  
+        // Convert the Shapefile data to GeoJSON format
+        const stateGeoJSON = {
+          type: 'FeatureCollection',
+          features: stateShapefile.features.map((feature) => ({
+            type: 'Feature',
+            geometry: feature.geometry,
+            properties: feature.properties,
+          })),
+        };
+  
+        // Create a new Leaflet GeoJSON layer from the GeoJSON data
+        const stateLayer = L.geoJSON(stateGeoJSON, {
+          style: {
+            color: 'white', // Change the color of the state outlines as needed
+            weight: 100, // Change the weight of the outlines as needed
+            fillOpacity: 100, // Set fillOpacity to 0 to make the outlines transparent
+          },
+        });
+  
+        // Add the state outlines layer to the map
+        stateLayer.addTo(map);
+  
+        return stateLayer; // Return the layer so we can store it in the stateLayer variable
+      } catch (error) {
+        console.error('Error adding state outlines layer:', error);
       }
     };
 
@@ -256,6 +328,11 @@ export default function Map() {
               className="logo-image"
             />
           </div>
+          <div className="say-their-names-container">
+                <div className="say-their-names-line1">SAY</div>
+                <div className="say-their-names-line2">THEIR</div>
+                <div className="say-their-names-line3">NAMES</div>
+          </div>
           {showDashboardContent && (
             <div className="dashboard-content">
               <div className="dashboard-section">
@@ -266,7 +343,7 @@ export default function Map() {
                     alt="Reset Zoom"
                     className="dashboard-icon"
                     onClick={handleResetZoom}
-                    style={{ width: "25px", height: "25px", marginLeft: "-200px", marginTop: "75px" }}
+                    style={{ width: "25px", height: "25px", marginLeft: "-200px", marginTop: "10px" }}
                   />
                 </div>
               </div>

@@ -86,15 +86,11 @@
   margin-bottom: 20px;
 }
 
-.dashboard-title {
-  font-weight: bold;
-  font-size: 18px;
-}
-
 .dashboard-content {
   margin-top: 20px;
   z-index: 1001;
 }
+
 
 .dashboard-section {
   margin-bottom: 20px;
@@ -102,11 +98,13 @@
 
 .dashboard-section-title {
   font-weight: bold;
+  font-family: 'Metrophobic', sans-serif;
   margin-bottom: 10px;
 }
 
 .dashboard-section-content {
   font-size: 14px;
+  font-family: 'Metrophobic', sans-serif;
 }
 
 .dashboard-section-content p {
@@ -227,6 +225,8 @@
   left: 10px;
   transition: left 0.3s ease; /* Add transition for smooth animation */
 }
+
+
 .reopen-button {
   transition: opacity 0.3s ease;
   z-index: 999;
@@ -234,4 +234,32 @@
 
 .reopen-button.visible {
   opacity: 1;
+}
+
+.say-their-names-line1,
+.say-their-names-line2,
+.say-their-names-line3 {
+  font-family: 'Metrophobic', sans-serif;
+  font-size: 25px; /* Adjust the font size as needed */
+  font-weight: bold;
+  color: #FFFEFC; /* Adjust the color as needed */
+  margin-top: -52px;
+  margin-right: 12px;
+}
+
+.say-their-names-line2 {
+  margin-top: 5px; 
+  margin-right: -15px;
+}
+
+.say-their-names-line3 {
+  margin-top: 5px; 
+  margin-right: -30px;
+}
+
+.logo-image {
+  width: 80px; 
+  height: 80px; 
+  border-radius: 50%;
+  margin-right: 130px; 
 }

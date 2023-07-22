@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^13.5.0",
     "assert": "^2.0.0",
     "axios": "^1.4.0",
+    "buffer": "^6.0.3",
     "cors": "^2.8.5",
     "dns": "^0.2.2",
     "fs": "^0.0.1-security",
@@ -23,6 +24,8 @@
     "react-dom": "^18.2.0",
     "react-leaflet": "^4.2.1",
     "react-scripts": "5.0.1",
+    "shapefile": "^0.6.6",
+    "shpjs": "^4.0.4",
     "util": "^0.12.5",
     "web-vitals": "^2.1.4"
   },
