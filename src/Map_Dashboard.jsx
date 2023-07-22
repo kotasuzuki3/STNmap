@@ -3,7 +3,8 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet.heat";
 import "./index_dashboard.css";
-import { read } from 'shapefile';
+import "leaflet-minimap/dist/Control.MiniMap.min.css";
+import "leaflet-minimap";
 
 export default function Map() {
   const mapRef = useRef(null);
@@ -20,45 +21,20 @@ export default function Map() {
   const [dateRange, setDateRange] = useState({ minDate: new Date(), maxDate: new Date() });
   const autoplayIntervalRef = useRef(null);
 
+  const toggleSubmit = () => {
+    window.open("https://form.jotform.com/222938481763163", "_blank");
+  };
+
+  const contactUs = () => {
+    window.location.href = "mailto:stn@nonopera.org";
+  };
+
   const toggleAbout = () => {
     setShowAbout(!showAbout);
   };
 
   const toggleMethodology = () => {
     setShowMethodology(!showMethodology);
-  };
-
-  const loadStateBoundaries = async () => {
-    try {
-      // Read the Shapefile data
-      const stateShapefile = await read('/Users/kotasuzuki/Desktop/non-opera stn/stn-app/tl_rd22_us_state/tl_rd22_us_state.shp');
-
-      // Convert the Shapefile data to GeoJSON format
-      const stateGeoJSON = {
-        type: 'FeatureCollection',
-        features: stateShapefile.features.map((feature) => ({
-          type: 'Feature',
-          geometry: feature.geometry,
-          properties: feature.properties,
-        })),
-      };
-
-      // Create a new Leaflet GeoJSON layer from the GeoJSON data
-      const stateLayer = L.geoJSON(stateGeoJSON, {
-        style: {
-          color: 'white', // Change the color of the state outlines as needed
-          weight: 100, // Change the weight of the outlines as needed
-          fillOpacity: 100, // Set fillOpacity to 0 to make the outlines transparent
-        },
-      });
-
-      // Add the state outlines layer to the map
-      stateLayer.addTo(mapRef.current);
-
-      return stateLayer; // Return the layer so we can store it in the stateLayerRef variable
-    } catch (error) {
-      console.error('Error loading state boundaries:', error);
-    }
   };
 
   const toggleDashboard = () => {
@@ -201,14 +177,14 @@ export default function Map() {
 
   useEffect(() => {
     let map;
-    let heatLayer;
-    let stateLayer; 
+    let heatLayer; 
 
     const initializeMap = async () => {
       try {
         const response = await fetch("http://localhost:3001/api/data");
         const jsonData = await response.json();
         const validData = filterValidData(jsonData);
+      
         setHeatmapData(validData);
 
         map = L.map(mapRef.current, {
@@ -221,7 +197,22 @@ export default function Map() {
           maxZoom: 16,
         }).addTo(map);
 
-        loadStateBoundaries();
+        // Create a minimap and add it to the main map
+        const minimapLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          minZoom: 0,
+          maxZoom: 13,
+        });
+        const minimapOptions = {
+          toggleDisplay: true,
+          minimized: true,
+          aimingRectOptions: {
+            color: "#ff0000", // Customize the minimap aiming rectangle color (optional)
+        },
+          layers: [minimapLayer],
+          autoToggleDisplay: false,
+        };
+        const minimapControl = new L.Control.MiniMap(minimapLayer, minimapOptions);
+        minimapControl.addTo(map);
 
         const minDate = new Date(Math.min(...validData.map((point) => new Date(point.incident_date))));
         const maxDate = new Date(Math.max(...validData.map((point) => new Date(point.incident_date))));
@@ -246,7 +237,6 @@ export default function Map() {
         mapRef.current = map;
         heatLayerRef.current = heatLayer;
 
-        stateLayer = await addStateOutlinesLayer();
 
         timeSliderRef.current.addEventListener("input", updateHeatmap);
         updateHeatmap();
@@ -255,38 +245,6 @@ export default function Map() {
       }
     };
 
-    const addStateOutlinesLayer = async () => {
-      try {
-        // Read the Shapefile data
-        const stateShapefile = await read('/Users/kotasuzuki/Desktop/non-opera stn/stn-app/tl_rd22_us_state/tl_rd22_us_state.shp');
-  
-        // Convert the Shapefile data to GeoJSON format
-        const stateGeoJSON = {
-          type: 'FeatureCollection',
-          features: stateShapefile.features.map((feature) => ({
-            type: 'Feature',
-            geometry: feature.geometry,
-            properties: feature.properties,
-          })),
-        };
-  
-        // Create a new Leaflet GeoJSON layer from the GeoJSON data
-        const stateLayer = L.geoJSON(stateGeoJSON, {
-          style: {
-            color: 'white', // Change the color of the state outlines as needed
-            weight: 100, // Change the weight of the outlines as needed
-            fillOpacity: 100, // Set fillOpacity to 0 to make the outlines transparent
-          },
-        });
-  
-        // Add the state outlines layer to the map
-        stateLayer.addTo(map);
-  
-        return stateLayer; // Return the layer so we can store it in the stateLayer variable
-      } catch (error) {
-        console.error('Error adding state outlines layer:', error);
-      }
-    };
 
     initializeMap();
 
@@ -368,6 +326,25 @@ export default function Map() {
                     className="dashboard-icon"
                     onClick={toggleMethodology}
                     style={{ width: "38px", height: "38px", marginLeft: "-195px", marginTop: "0px" }}
+                  />
+                </div>
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/60/60525.png"
+                  alt="Submit Information"
+                  className="dashboard-icon"
+                  onClick={toggleSubmit}
+                  style={{ width: "25px", height: "25px", marginLeft: "-200px", marginTop: "20px" }}
+                />
+              </div>
+              <div className="dashboard-section">
+                <div className="dashboard-section-title"></div>
+                <div className="dashboard-section-content">
+                  <img
+                    src="https://cdn.icon-icons.com/icons2/3488/PNG/512/inbox_letter_contact_envelope_mail_email_icon_220346.png"
+                    alt="Contact Us"
+                    className="dashboard-icon"
+                    onClick={contactUs}
+                    style={{ width: "25px", height: "25px", marginLeft: "-200px", marginTop: "5px" }}
                   />
                 </div>
               </div>
