@@ -191,16 +191,22 @@ export default function Map() {
           zoomControl: false,
         }).setView([37.0902, -95.7129], 4.4);
 
-        L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
+        const basemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
           attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
           minZoom: 3,
-          maxZoom: 16,
-        }).addTo(map);
+        });
+        basemapLayer.addTo(map)
+
+        // L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
+        //   attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+        //   minZoom: 3,
+        //   maxZoom: 16,
+        // }).addTo(map);
 
         // Create a minimap and add it to the main map
         const minimapLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           minZoom: 0,
-          maxZoom: 13,
+          maxZoom: 14,
         });
         const minimapOptions = {
           toggleDisplay: true,
@@ -222,13 +228,13 @@ export default function Map() {
         timeSliderRef.current.value = initialTimelineValue;
 
         heatLayer = L.heatLayer([], {
-          radius: 25,
-          blur: 15,
+          radius: 10,
+          blur: 3,
           gradient: {
             0.03: "blue",
-            0.06: "cyan",
-            0.09: "yellow",
-            0.1: "orange",
+            0.06: "yellow",
+            0.09: "orange",
+            0.1: "pink",
             0.15: "red",
           },
         });
