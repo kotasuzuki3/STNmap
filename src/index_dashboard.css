@@ -268,3 +268,23 @@
   width: 300px;
   height: 300px;
 }
+
+.alaska-map {
+  border: 3px solid #8B0000;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 200px;
+  height: 200px; 
+  z-index: 1002
+}
+
+.hawaii-map {
+  border: 3px solid #8B0000;
+  position: absolute;
+  bottom: 20px;
+  right: 220px;
+  width: 200px;
+  height: 200px; 
+  z-index: 1003
+}
