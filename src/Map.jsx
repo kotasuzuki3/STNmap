@@ -21,6 +21,7 @@ export default function Map() {
   const [dashboardVisible, setDashboardVisible] = useState(true);
   const [heatmapData, setHeatmapData] = useState([]);
   const [dateRange, setDateRange] = useState({ minDate: new Date(), maxDate: new Date() });
+  const [activeButton, setActiveButton] = useState("");
   const autoplayIntervalRef = useRef(null);
 
   const toggleSubmit = () => {
@@ -37,10 +38,14 @@ export default function Map() {
 
   const toggleAbout = () => {
     setShowAbout(!showAbout);
+    setShowMethodology(false);
+    setActiveButton((prev) => (prev === "about" ? "" : "about")); 
   };
 
   const toggleMethodology = () => {
     setShowMethodology(!showMethodology);
+    setShowAbout(false);
+    setActiveButton((prev) => (prev === "methodology" ? "" : "methodology"));
   };
 
   const toggleDashboard = () => {
@@ -393,12 +398,12 @@ export default function Map() {
         <div className="logo-text">SAY THEIR NAMES</div>
         <ul className="menu-item-list">
           <li>
-            <a href="#" onClick={toggleMethodology}>
+            <a href="#" onClick={toggleMethodology} className={activeButton === "methodology" ? "active" : ""}>
               Methodology
             </a>
           </li>
           <li>
-            <a href="#" onClick={toggleAbout}>
+            <a href="#" onClick={toggleAbout} className={activeButton === "about" ? "active" : ""}>
               About
             </a>
           </li>

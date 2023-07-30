@@ -112,10 +112,10 @@
 
 .popup {
   position: absolute;
-  top: 20px;
+  top: 90px;
   right: 20px;
   width: 200px;
-  height: 150px;
+  height: 350px;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -277,4 +277,8 @@
 .dashboard-section-content {
   font-family: "Metrophobic", sans-serif;
   font-size: 13.5px
+}
+
+.menu-item-list a.active {
+  color: yellow;
 }
