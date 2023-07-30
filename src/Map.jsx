@@ -431,7 +431,7 @@ export default function Map() {
               alt={dashboardVisible ? "Collapse" : "Reopen"}
               className="dashboard-icon"
               onClick={toggleDashboard}
-              style={{ width: "30px", height: "30px", marginTop: "70px" }}
+              style={{ width: "30px", height: "30px", marginTop: "0px" }}
             />
           </div>
           <div className="logo-container">
@@ -477,20 +477,14 @@ export default function Map() {
           )}
         </div>
       )}
-      {!showDashboard && (
-        <div className="dashboard collapsed">
-          <div className="dashboard-header">
-            <div className="dashboard-title"></div>
+      {!showDashboard && !dashboardVisible && (
             <img
               src="https://cdn.iconscout.com/icon/free/png-256/free-collapse-right-1485695-1258916.png?f=webp"
               alt="Reopen"
-              className="dashboard-icon"
+              className="reopen-button"
               onClick={toggleDashboard}
-              style={{ width: "25px", height: "25px" }}
+              style={{ width: "25px", height: "25px", marginLeft: "-30px", marginTop: "0px" }}
             />
-          </div>
-          <div className="dashboard-content"></div>
-        </div>
       )}
       {showAbout && (
         <div className="popup">
@@ -540,13 +534,6 @@ export default function Map() {
           </div>
         </div>
       )}
-      <img
-        src="https://cdn.iconscout.com/icon/free/png-256/free-collapse-right-1485695-1258916.png?f=webp"
-        alt="Reopen"
-        className="reopen-button"
-        onClick={toggleDashboard}
-        style={{ width: "25px", height: "25px", marginLeft: "-30px", marginTop: "0px" }}
-      />
     </div>
   );
 }
