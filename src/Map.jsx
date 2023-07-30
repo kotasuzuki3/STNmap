@@ -27,6 +27,10 @@ export default function Map() {
     window.open("https://form.jotform.com/222938481763163", "_blank");
   };
 
+  const handleFeedback = () => {
+    window.open("https://form.jotform.com/231036759147055", "_blank");
+  };
+
   const contactUs = () => {
     window.location.href = "mailto:stn@nonopera.org";
   };
@@ -379,6 +383,42 @@ export default function Map() {
 
   return (
     <div className="map-container">
+      {/* Menu at the top */}
+      <div className="menu">
+        <img
+          src="https://www.nonopera.org/WP2/wp-content/uploads/2016/12/NONopNEWlogo-round300-1.jpg"
+          alt="Logo"
+          className="logo-image"
+        />
+        <div className="logo-text">SAY THEIR NAMES</div>
+        <ul className="menu-item-list">
+          <li>
+            <a href="#" onClick={toggleMethodology}>
+              Methodology
+            </a>
+          </li>
+          <li>
+            <a href="#" onClick={toggleAbout}>
+              About
+            </a>
+          </li>
+          <li>
+            <a href="#" onClick={toggleSubmit}>
+              Submit Info
+            </a>
+          </li>
+          <li>
+            <a href="#" onClick={contactUs}>
+              Contact Us
+            </a>
+          </li>
+          <li>
+            <a href="#" onClick={handleFeedback}>
+              Feedback
+            </a>
+          </li>
+        </ul>
+      </div>
       <div ref={mapRef} className="map"></div>
       <div id="alaska-map" className="alaska-map"></div>
       <div id="hawaii-map" className="hawaii-map"></div>
@@ -391,20 +431,10 @@ export default function Map() {
               alt={dashboardVisible ? "Collapse" : "Reopen"}
               className="dashboard-icon"
               onClick={toggleDashboard}
-              style={{ width: "25px", height: "25px" }}
+              style={{ width: "30px", height: "30px", marginTop: "70px" }}
             />
           </div>
           <div className="logo-container">
-            <img
-              src="https://www.nonopera.org/WP2/wp-content/uploads/2016/12/NONopNEWlogo-round300-1.jpg"
-              alt="Logo"
-              className="logo-image"
-            />
-          </div>
-          <div className="say-their-names-container">
-                <div className="say-their-names-line1">SAY</div>
-                <div className="say-their-names-line2">THEIR</div>
-                <div className="say-their-names-line3">NAMES</div>
           </div>
           {showDashboardContent && (
             <div className="dashboard-content">
@@ -416,50 +446,7 @@ export default function Map() {
                     alt="Reset Zoom"
                     className="dashboard-icon"
                     onClick={handleResetZoom}
-                    style={{ width: "25px", height: "25px", marginLeft: "-200px", marginTop: "10px" }}
-                  />
-                </div>
-              </div>
-              <div className="dashboard-section">
-                <div className="dashboard-section-title"></div>
-                <div className="dashboard-section-content">
-                  <img
-                    src="https://www.iconpacks.net/icons/1/free-information-icon-348-thumb.png"
-                    alt="About"
-                    className="dashboard-icon"
-                    onClick={toggleAbout}
-                    style={{ width: "30px", height: "30px", marginLeft: "-200px", marginTop: "5px" }}
-                  />
-                </div>
-              </div>
-              <div className="dashboard-section">
-                <div className="dashboard-section-title"></div>
-                <div className="dashboard-section-content">
-                  <img
-                    src="https://cdn-icons-png.flaticon.com/512/6345/6345343.png"
-                    alt="Methodology"
-                    className="dashboard-icon"
-                    onClick={toggleMethodology}
-                    style={{ width: "38px", height: "38px", marginLeft: "-195px", marginTop: "0px" }}
-                  />
-                </div>
-                <img
-                  src="https://cdn-icons-png.flaticon.com/512/60/60525.png"
-                  alt="Submit Information"
-                  className="dashboard-icon"
-                  onClick={toggleSubmit}
-                  style={{ width: "25px", height: "25px", marginLeft: "-200px", marginTop: "20px" }}
-                />
-              </div>
-              <div className="dashboard-section">
-                <div className="dashboard-section-title"></div>
-                <div className="dashboard-section-content">
-                  <img
-                    src="https://cdn.icon-icons.com/icons2/3488/PNG/512/inbox_letter_contact_envelope_mail_email_icon_220346.png"
-                    alt="Contact Us"
-                    className="dashboard-icon"
-                    onClick={contactUs}
-                    style={{ width: "25px", height: "25px", marginLeft: "-200px", marginTop: "5px" }}
+                    style={{ width: "25px", height: "25px", marginLeft: "-225px", transform: "translateY(-45px)", }}
                   />
                 </div>
               </div>
