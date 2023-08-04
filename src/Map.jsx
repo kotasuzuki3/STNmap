@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet.heat";
-import "./index_dashboard.css";
+import "./index.css";
 
 export default function Map() {
   const mapRef = useRef(null);
@@ -130,6 +130,23 @@ export default function Map() {
       hawaiiHeatLayerRef.current.setLatLngs(hawaiiHeatPoints);
 
     }, intervalDuration);
+  };
+
+  const removeHeatLayers = () => {
+    if (heatLayerRef.current) {
+      heatLayerRef.current.remove();
+      heatLayerRef.current = null;
+    }
+
+    if (alaskaHeatLayerRef.current) {
+      alaskaHeatLayerRef.current.remove();
+      alaskaHeatLayerRef.current = null;
+    }
+
+    if (hawaiiHeatLayerRef.current) {
+      hawaiiHeatLayerRef.current.remove();
+      hawaiiHeatLayerRef.current = null;
+    }
   };
 
   const filterValidData = (data) => {
@@ -361,12 +378,25 @@ export default function Map() {
     initializeMap();
 
     return () => {
+      removeHeatLayers();
       const timeSlider = timeSliderRef.current;
-      timeSlider.removeEventListener("input", updateHeatmap);
+      if (timeSlider) {
+        timeSlider.addEventListener("input", updateHeatmap);
+      }
 
       if (map && heatLayer) {
         map.remove();
         heatLayerRef.current = null;
+      }
+
+      if (alaskaMap && alaskaHeatLayer) {
+        alaskaMap.remove();
+        alaskaHeatLayerRef.current = null;
+      }
+
+      if (hawaiiMap && hawaiiHeatLayer) {
+        hawaiiMap.remove();
+        hawaiiHeatLayerRef.current = null;
       }
     };
   }, []);
