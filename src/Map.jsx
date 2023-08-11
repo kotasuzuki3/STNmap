@@ -51,16 +51,19 @@ export default function Map() {
   const toggleDashboard = () => {
     if (showDashboard) {
       setDashboardVisible(false);
+      clearInterval(autoplayIntervalRef.current); // Clear the autoplay interval
+      setAutoplay(false); // Set autoplay to false
     } else {
       setDashboardVisible(true);
     }
     setShowDashboard(!showDashboard);
   };
+  
 
   const handleAutoplay = () => {
     if (autoplay) {
       clearInterval(autoplayIntervalRef.current);
-    } else {
+    } else if (showDashboard) {
       startAutoplay();
     }
     setAutoplay(!autoplay);
@@ -250,9 +253,11 @@ export default function Map() {
 
       hawaiiHeatLayerRef.current.setLatLngs(hawaiiHeatPoints);
 
-      if (autoplay) {
+      if (autoplay && showDashboard) {
         startAutoplay();
       }
+
+      
     } catch (error) {
       console.error("Error updating data:", error);
     }
