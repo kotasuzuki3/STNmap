@@ -194,10 +194,12 @@
 }
 
 .logo-image {
+  position: fixed;
   width: 50px; 
   height: 50px; 
   border-radius: 15%;
-  margin-right: 1000px; 
+  left:20px; 
+  top: 10px;
 }
 
 .leaflet-control-minimap {
@@ -229,12 +231,12 @@
 .menu {
   background-color: #333;
   color: white;
-  padding: 10px;
-  display: flex; /* Make the menu items appear in a single row */
+  padding: 25px;
+  display: absolute; /* Make the menu items appear in a single row */
   align-items: center; /* Align items vertically in the center */
   justify-content: space-between; /* Distribute items evenly */
-  width: 100%;
-  position: fixed;
+  width: 160%;
+  position: absolute;
   top: 0;
   left: 0;
   z-index: 1005;
@@ -243,6 +245,7 @@
 .menu ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .menu li {
@@ -258,14 +261,19 @@
 }
 
 .logo-text {
+  position: absolute;
   font-family: "Metrophobic", sans-serif;
   font-size: 27px; /* Adjust the font size as needed */
   font-weight: bold; /* Make the text bold */
   color: #ffffff;
-  margin-left: -1560px;
+  margin-left: 70px;
+  top: 20px;
 }
 
 .menu-item-list li {
+  display: absolute; 
+  align-items: center; /* Align items vertically in the center */
+  justify-content: space-between; /* Distribute items evenly */
   font-family: "Metrophobic", sans-serif;
   margin-right: 20px; /* Add some right margin to create space between items */
 }

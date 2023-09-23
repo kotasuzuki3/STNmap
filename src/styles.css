@@ -11,7 +11,7 @@
 .toggle-button {
   position: absolute;
   top: 90px; /* Adjust the value as needed to create space between the button and the menu */
-  left: 1300px; /* Adjust the value as needed to position the button horizontally */
+  left: 1775px; /* Adjust the value as needed to position the button horizontally */
   padding: 10px 15px;
   background-color: #4caf50;
   color: white;
