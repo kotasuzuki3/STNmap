@@ -290,12 +290,6 @@ export default function Map() {
         });
         basemapLayer.addTo(map)
 
-        // L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
-        //   attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
-        //   minZoom: 3,
-        //   maxZoom: 16,
-        // }).addTo(map);
-
         // Initialize the Alaska Map
         alaskaMap = L.map("alaska-map", {
           zoomControl: false,

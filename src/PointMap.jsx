@@ -5,14 +5,17 @@ import "./index.css";
 
 export default function PointMap() {
   const mapRef = useRef(null);
-  const [alaskaMap, setAlaskaMap] = useState(null);
-  const [hawaiiMap, setHawaiiMap] = useState(null);
+  const alaskaMapRef = useRef(null);
+  const hawaiiMapRef = useRef(null);
   const pointLayerRef = useRef(null);
   const [pointData, setPointData] = useState([]);
   const [showAbout, setShowAbout] = useState(false);
   const [showMethodology, setShowMethodology] = useState(false);
   const [activeButton, setActiveButton] = useState("");
-  const [showDashboard, setShowDashboard] = useState(true);
+  const [selectedState, setSelectedState] = useState("All");
+
+  const cities = [...new Set(pointData.map((point) => point.city))]; // Get unique city names
+  const states = [...new Set(pointData.map((point) => point.state))]; // Get unique state names
 
   const toggleAbout = () => {
     setShowAbout(!showAbout);
@@ -49,32 +52,37 @@ export default function PointMap() {
     return validData;
   };
 
+  const filterDataByState = (validData) => {
+    console.log("Filtering by State:", selectedState); 
+    if (selectedState === "All") {
+      return validData; 
+    } else {
+      return validData.filter((point) => point.state === selectedState);
+    }
+  };
+
   useEffect(() => {
     let map;
     let alaskaMap;
     let hawaiiMap;
     const initializeMap = async () => {
       try {
-        // Fetch point data from your API or source
         const response = await fetch("http://localhost:3001/api/data");
         const jsonData = await response.json();
         const validData = filterValidData(jsonData);
         setPointData(validData);
 
-        // Create a Leaflet map
         map = L.map(mapRef.current, {
           zoomControl: false,
         }).setView([37.0902, -95.7129], 4.4);
 
-        // Add a basemap layer (e.g., dark basemap)
         const basemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
           attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
           minZoom: 3,
         });
-        basemapLayer.addTo(map)
+        basemapLayer.addTo(map);
 
-        // Initialize the Alaska Map
-        alaskaMap = L.map("alaska-map", {
+        alaskaMap = L.map(alaskaMapRef.current, {
           zoomControl: false,
         }).setView([64.2008, -149.4937], 2); // Coordinates for Alaska
 
@@ -83,53 +91,54 @@ export default function PointMap() {
           minZoom: 3,
         });
         alaskaBasemapLayer.addTo(alaskaMap);
-        setAlaskaMap(alaskaMap);
 
         // Initialize Hawaii map
-        hawaiiMap = L.map("hawaii-map", {
+        hawaiiMap = L.map(hawaiiMapRef.current, {
           zoomControl: false,
-        }).setView([21.3114, -157.7964], 5); 
+        }).setView([21.3114, -157.7964], 5);
 
         const hawaiiBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
           minZoom: 3,
         });
         hawaiiBasemapLayer.addTo(hawaiiMap);
-        setHawaiiMap(hawaiiMap);
+
+
 
         // Create a feature group for the point markers
         const pointLayer = L.featureGroup().addTo(map);
         pointLayerRef.current = pointLayer;
 
-        // Add markers for each data point
-        validData.forEach((point) => {
+        pointLayer.clearLayers();
+
+        const filteredData = filterDataByState(validData);
+        filteredData.forEach((point) => {
           const customIcon = L.icon({
             iconUrl: 'https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-Free-Download-PNG.png',
-            iconSize: [32, 32], // Adjust the size as needed
+            iconSize: [20, 20],
           });
-          
+
           // Create a marker with the custom icon
           const marker = L.marker([point.latitude, point.longitude], { icon: customIcon }).addTo(pointLayer);
 
-          // Customize the marker's appearance or add popups here.
-          marker.bindPopup(`<strong>${point.name}</strong><br>${point.description}`);
+          marker.bindPopup(`<strong>${point.name}</strong><br>Location: ${point.city}, ${point.state}<br>${point.description}`);
         });
 
-        // Fit the main map to the bounds of the point markers
-        map.fitBounds(pointLayer.getBounds());
+      if (pointLayer.getLayers().length > 0) {
+        const pointBounds = pointLayer.getBounds();
+        if (pointBounds.isValid()) {
+          map.fitBounds(pointBounds);
+        }
+        alaskaMap.fitBounds(pointBounds);
 
-        // Fit the Alaska map to its point markers (if you have specific markers for Alaska)
-        alaskaMap.fitBounds(pointLayer.getBounds());
-
-        // Fit the Hawaii map to its point markers (if you have specific markers for Hawaii)
-        hawaiiMap.fitBounds(pointLayer.getBounds());
-
+        hawaiiMap.fitBounds(pointBounds);
+      }
       } catch (error) {
         console.error("Error initializing point map:", error);
       }
     };
 
     initializeMap();
-  }, []);
+  }, [selectedState]);
 
   return (
     <div className="map-container">
@@ -169,14 +178,64 @@ export default function PointMap() {
         </ul>
       </div>
       <div className="map-container">
-      <div ref={mapRef} className="map"></div>
-      <div id="alaska-map" className="alaska-map"></div>
-      <div id="hawaii-map" className="hawaii-map"></div>
+        <div ref={mapRef} className="map"></div>
+        <div ref={alaskaMapRef} id="alaska-map" className="alaska-map"></div>
+        <div ref={hawaiiMapRef} id="hawaii-map" className="hawaii-map"></div>
+        <div className="dashboard">
+          <h2>Dashboard</h2>
+          <div className="filter">
+            <label htmlFor="stateFilter">Select State:</label>
+            <select
+              id="stateFilter"
+              value={selectedState}
+              onChange={(e) => setSelectedState(e.target.value)}
+            >
+              <option value="All">All</option>
+              {states.map((state) => (
+                <option key={state} value={state}>
+                  {state}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
       {showAbout && (
         <div className="popup">
           <div className="popup-content">
+          <p>
+              SAY THEIR NAMES is an ongoing research and mapping project, intended to identify and remember Black Americans
+              killed by police violence since 1919. It is designed with an open-ended timeline to permit several successive
+              years of research, the concurrent development of an interactive map, and the accumulation of community contributions.
+              This map is truly a participatory and interactive project. In the coming months and years as we continue to accumulate
+              research data and develop the online interactive map, we will add the capability to submit data through an online form.
+            </p>
             <p>
+              For now, please email us if you have additional information on a currently listed Black American, or with additional
+              names that should be included in the map. You may also fill out a form on our website{" "}
+              <a href="https://form.jotform.com/222938481763163">HERE</a>.
+            </p>
+            <p>
+              To find out more about SAY THEIR NAMES, including research methodology, current and past researchers, and how you can participate,
+              please visit the <a href="https://www.nonopera.org/WP2/voices/say-their-names/">SAY THEIR NAMES webpage</a>.
+            </p>
+            <p>
+              SAY THEIR NAMES was formally launched in January 2021, and currently is staffed by a Lead Researcher-Supervisor, Ronald Browne;
+              a Project Manager, Dr. Saba Ayman-Nolley; Northeastern Illinois University academic supervisor for map development, Ting Liu;
+              two Northeastern Illinois University interns, research assistant Nozanin (Noza) Farrukhzoda and map developer Robert (Rob) Strzok;
+              and two volunteer community Research Assistants, Omid Nolley and Safira Newton-Matza. In addition, NON:op’s creative director,
+              Christophe Preissing, is assisting with the map development.
+            </p>
+            <p>
+              For more information, please email us at <a href="mailto:stn@nonopera.org">stn@nonopera.org</a>.
+            </p>
+          </div>
+        </div>
+      )}
+      {showMethodology && (
+        <div className="popup">
+          <div className="popup-content">
+          <p>
               SAY THEIR NAMES is an ongoing research and mapping project, intended to identify and remember Black Americans
               killed by police violence since 1919. It is designed with an open-ended timeline to permit several successive
               years of research, the concurrent development of an interactive map, and the accumulation of community contributions.

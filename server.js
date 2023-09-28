@@ -25,7 +25,7 @@ client.connect()
 
   app.get('/api/data', async (req, res) => {
     try {
-      const query = 'SELECT latitude, longitude, incident_date FROM api_incident';
+      const query = 'SELECT latitude, longitude, incident_date, city, state, description FROM api_incident';
       const result = await client.query(query);
       const rows = result.rows;
       res.json(rows);
