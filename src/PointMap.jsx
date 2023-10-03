@@ -14,8 +14,8 @@ export default function PointMap() {
   const [activeButton, setActiveButton] = useState("");
   const [selectedState, setSelectedState] = useState("All");
 
-  const cities = [...new Set(pointData.map((point) => point.city))]; // Get unique city names
-  const states = [...new Set(pointData.map((point) => point.state))]; // Get unique state names
+  const cities = [...new Set(pointData.map((point) => point.city))];
+  const states = [...new Set(pointData.map((point) => point.state))];
 
   const toggleAbout = () => {
     setShowAbout(!showAbout);
@@ -52,15 +52,6 @@ export default function PointMap() {
     return validData;
   };
 
-  const filterDataByState = (validData) => {
-    console.log("Filtering by State:", selectedState); 
-    if (selectedState === "All") {
-      return validData; 
-    } else {
-      return validData.filter((point) => point.state === selectedState);
-    }
-  };
-
   useEffect(() => {
     let map;
     let alaskaMap;
@@ -72,6 +63,7 @@ export default function PointMap() {
         const validData = filterValidData(jsonData);
         setPointData(validData);
 
+        // Initialize the map outside of the useEffect
         map = L.map(mapRef.current, {
           zoomControl: false,
         }).setView([37.0902, -95.7129], 4.4);
@@ -84,15 +76,13 @@ export default function PointMap() {
 
         alaskaMap = L.map(alaskaMapRef.current, {
           zoomControl: false,
-        }).setView([64.2008, -149.4937], 2); // Coordinates for Alaska
+        }).setView([64.2008, -149.4937], 2);
 
-        // Add the same basemap style to the Alaska map
         const alaskaBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
           minZoom: 3,
         });
         alaskaBasemapLayer.addTo(alaskaMap);
 
-        // Initialize Hawaii map
         hawaiiMap = L.map(hawaiiMapRef.current, {
           zoomControl: false,
         }).setView([21.3114, -157.7964], 5);
@@ -102,36 +92,36 @@ export default function PointMap() {
         });
         hawaiiBasemapLayer.addTo(hawaiiMap);
 
-
-
-        // Create a feature group for the point markers
+        // Initialize the pointLayer feature group outside of the useEffect
         const pointLayer = L.featureGroup().addTo(map);
         pointLayerRef.current = pointLayer;
 
+        // Fetch and filter your data here
+        const filteredData = filterDataByState(validData);
+
+        // Clear existing markers from the pointLayer
         pointLayer.clearLayers();
 
-        const filteredData = filterDataByState(validData);
+        // Add filtered markers to the pointLayer
         filteredData.forEach((point) => {
           const customIcon = L.icon({
             iconUrl: 'https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-Free-Download-PNG.png',
             iconSize: [20, 20],
           });
 
-          // Create a marker with the custom icon
           const marker = L.marker([point.latitude, point.longitude], { icon: customIcon }).addTo(pointLayer);
 
           marker.bindPopup(`<strong>${point.name}</strong><br>Location: ${point.city}, ${point.state}<br>${point.description}`);
         });
 
-      if (pointLayer.getLayers().length > 0) {
-        const pointBounds = pointLayer.getBounds();
-        if (pointBounds.isValid()) {
-          map.fitBounds(pointBounds);
+        if (pointLayer.getLayers().length > 0) {
+          const pointBounds = pointLayer.getBounds();
+          if (pointBounds.isValid()) {
+            map.fitBounds(pointBounds);
+          }
+          alaskaMap.fitBounds(pointBounds);
+          hawaiiMap.fitBounds(pointBounds);
         }
-        alaskaMap.fitBounds(pointBounds);
-
-        hawaiiMap.fitBounds(pointBounds);
-      }
       } catch (error) {
         console.error("Error initializing point map:", error);
       }
@@ -139,6 +129,14 @@ export default function PointMap() {
 
     initializeMap();
   }, [selectedState]);
+
+  const filterDataByState = (validData) => {
+    if (selectedState === "All") {
+      return validData;
+    } else {
+      return validData.filter((point) => point.state === selectedState);
+    }
+  };
 
   return (
     <div className="map-container">
