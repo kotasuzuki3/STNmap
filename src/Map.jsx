@@ -282,7 +282,7 @@ export default function Map() {
 
         map = L.map(mapRef.current, {
           zoomControl: false,
-        }).setView([37.0902, -95.7129], 4.4);
+        }).setView([40.0902, -100.7129], 5);
 
         const basemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
           attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
@@ -402,7 +402,7 @@ export default function Map() {
 
   const handleResetZoom = () => {
     const map = mapRef.current;
-    map.setView([37.0902, -95.7129], 4.4);
+    map.setView([40.0902, -100.7129], 5);
   
     // Reset Alaska map's view
     if (alaskaMap) {

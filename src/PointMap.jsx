@@ -14,6 +14,7 @@ export default function PointMap() {
   const [activeButton, setActiveButton] = useState("");
   const [selectedState, setSelectedState] = useState("All");
 
+
   const cities = [...new Set(pointData.map((point) => point.city))];
   const states = [...new Set(pointData.map((point) => point.state))];
 
@@ -62,7 +63,7 @@ export default function PointMap() {
 
   const handleResetZoom = () => {
     const map = mapRef.current;
-    map.setView([37.0902, -95.7129], 4.4);
+    map.setView([40.0902, -100.7129], 5);
   
     // Reset Alaska map's view
     if (alaskaMap) {
@@ -79,6 +80,36 @@ export default function PointMap() {
     let map;
     let alaskaMap;
     let hawaiiMap;
+    
+    const updateMapWithFilteredData = (validData) => {
+      if (!pointLayerRef.current) {
+        pointLayerRef.current = L.featureGroup().addTo(map);
+      }
+
+      const filteredData = filterDataByState(validData);
+
+      // Clear existing markers from the pointLayer
+      pointLayerRef.current.clearLayers();
+
+      // Add filtered markers to the pointLayer
+      filteredData.forEach((point) => {
+        const customIcon = L.icon({
+          iconUrl:
+            "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-Free-Download-PNG.png",
+          iconSize: [20, 20],
+        });
+
+        const marker = L.marker(
+          [point.latitude, point.longitude],
+          { icon: customIcon }
+        ).addTo(pointLayerRef.current);
+
+        marker.bindPopup(
+          `<strong>${point.name}</strong><br>Location: ${point.city}, ${point.state}<br>${point.description}`
+        );
+      });
+    };
+
     const initializeMap = async () => {
       try {
         const response = await fetch("http://localhost:3001/api/data");
@@ -88,7 +119,7 @@ export default function PointMap() {
 
         map = L.map(mapRef.current, {
           zoomControl: false,
-        }).setView([37.0902, -95.7129], 4.4);
+        }).setView([40.0902, -100.7129], 5);
 
         const basemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
           attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
@@ -119,36 +150,8 @@ export default function PointMap() {
         hawaiiBasemapLayer.addTo(hawaiiMap);
         setHawaiiMap(hawaiiMap);
 
-        // Initialize the pointLayer feature group outside of the useEffect
-        const pointLayer = L.featureGroup().addTo(map);
-        pointLayerRef.current = pointLayer;
-
-        // Fetch and filter your data here
-        const filteredData = filterDataByState(validData);
-
-        // Clear existing markers from the pointLayer
-        pointLayer.clearLayers();
-
-        // Add filtered markers to the pointLayer
-        filteredData.forEach((point) => {
-          const customIcon = L.icon({
-            iconUrl: 'https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-Free-Download-PNG.png',
-            iconSize: [20, 20],
-          });
-
-          const marker = L.marker([point.latitude, point.longitude], { icon: customIcon }).addTo(pointLayer);
-
-          marker.bindPopup(`<strong>${point.name}</strong><br>Location: ${point.city}, ${point.state}<br>${point.description}`);
-        });
-
-        if (pointLayer.getLayers().length > 0) {
-          const pointBounds = pointLayer.getBounds();
-          if (pointBounds.isValid()) {
-            map.fitBounds(pointBounds);
-          }
-          alaskaMap.fitBounds(pointBounds);
-          hawaiiMap.fitBounds(pointBounds);
-        }
+        pointLayerRef.current = L.featureGroup().addTo(map);
+        updateMapWithFilteredData(validData);
       } catch (error) {
         console.error("Error initializing point map:", error);
       }
@@ -156,6 +159,7 @@ export default function PointMap() {
 
     initializeMap();
   }, [selectedState]);
+
 
   return (
     <div className="map-container">
