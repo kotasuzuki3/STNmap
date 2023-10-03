@@ -5,8 +5,8 @@ import "./index.css";
 
 export default function PointMap() {
   const mapRef = useRef(null);
-  const alaskaMapRef = useRef(null);
-  const hawaiiMapRef = useRef(null);
+  const [alaskaMap, setAlaskaMap] = useState(null);
+  const [hawaiiMap, setHawaiiMap] = useState(null);
   const pointLayerRef = useRef(null);
   const [pointData, setPointData] = useState([]);
   const [showAbout, setShowAbout] = useState(false);
@@ -52,6 +52,29 @@ export default function PointMap() {
     return validData;
   };
 
+  const filterDataByState = (validData) => {
+    if (selectedState === "All") {
+      return validData;
+    } else {
+      return validData.filter((point) => point.state === selectedState);
+    }
+  };
+
+  const handleResetZoom = () => {
+    const map = mapRef.current;
+    map.setView([37.0902, -95.7129], 4.4);
+  
+    // Reset Alaska map's view
+    if (alaskaMap) {
+      alaskaMap.setView([64.2008, -149.4937], 2);
+    }
+  
+    // Reset Hawaii map's view
+    if (hawaiiMap) {
+      hawaiiMap.setView([21.3114, -157.7964], 5);
+    }
+  };
+
   useEffect(() => {
     let map;
     let alaskaMap;
@@ -63,7 +86,6 @@ export default function PointMap() {
         const validData = filterValidData(jsonData);
         setPointData(validData);
 
-        // Initialize the map outside of the useEffect
         map = L.map(mapRef.current, {
           zoomControl: false,
         }).setView([37.0902, -95.7129], 4.4);
@@ -74,23 +96,28 @@ export default function PointMap() {
         });
         basemapLayer.addTo(map);
 
-        alaskaMap = L.map(alaskaMapRef.current, {
+        // Initialize the Alaska Map
+        alaskaMap = L.map("alaska-map", {
           zoomControl: false,
-        }).setView([64.2008, -149.4937], 2);
+        }).setView([64.2008, -149.4937], 2); // Coordinates for Alaska
 
+        // Add the same basemap style to the Alaska map
         const alaskaBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
           minZoom: 3,
         });
         alaskaBasemapLayer.addTo(alaskaMap);
+        setAlaskaMap(alaskaMap);
 
-        hawaiiMap = L.map(hawaiiMapRef.current, {
+        // Initialize Hawaii map
+        hawaiiMap = L.map("hawaii-map", {
           zoomControl: false,
-        }).setView([21.3114, -157.7964], 5);
+        }).setView([21.3114, -157.7964], 5); 
 
         const hawaiiBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
           minZoom: 3,
         });
         hawaiiBasemapLayer.addTo(hawaiiMap);
+        setHawaiiMap(hawaiiMap);
 
         // Initialize the pointLayer feature group outside of the useEffect
         const pointLayer = L.featureGroup().addTo(map);
@@ -130,14 +157,6 @@ export default function PointMap() {
     initializeMap();
   }, [selectedState]);
 
-  const filterDataByState = (validData) => {
-    if (selectedState === "All") {
-      return validData;
-    } else {
-      return validData.filter((point) => point.state === selectedState);
-    }
-  };
-
   return (
     <div className="map-container">
       <div className="menu">
@@ -175,10 +194,9 @@ export default function PointMap() {
           </li>
         </ul>
       </div>
-      <div className="map-container">
-        <div ref={mapRef} className="map"></div>
-        <div ref={alaskaMapRef} id="alaska-map" className="alaska-map"></div>
-        <div ref={hawaiiMapRef} id="hawaii-map" className="hawaii-map"></div>
+      <div ref={mapRef} className="map"></div>
+      <div id="alaska-map" className="alaska-map"></div>
+      <div id="hawaii-map" className="hawaii-map"></div>
         <div className="dashboard">
           <h2>Dashboard</h2>
           <div className="filter">
@@ -197,7 +215,6 @@ export default function PointMap() {
             </select>
           </div>
         </div>
-      </div>
       {showAbout && (
         <div className="popup">
           <div className="popup-content">

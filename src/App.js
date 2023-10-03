@@ -4,18 +4,25 @@ import PointMap from "./PointMap";
 import "./styles.css";
 
 export default function App() {
-  const [mapType, setMapType] = useState("heatmap");
+  const [mapType, setMapType] = useState("point");
 
   const handleFlipMap = () => {
-    setMapType((prevMapType) => (prevMapType === "heatmap" ? "point" : "heatmap"));
+    setMapType((prevMapType) => (prevMapType === "point" ? "heatmap" : "point"));
   };
+
+  let mapComponent;
+  if (mapType === "point") {
+    mapComponent = <PointMap />;
+  } else if (mapType === "heatmap") {
+    mapComponent = <Map />;
+  }
 
   return (
     <div className="App">
       <button onClick={handleFlipMap} className="toggle-button">
-        {mapType === "heatmap" ? "View Point Map" : "View Heat Map"}
+        {mapType === "point" ? "View Heat Map" : "View Point Map"}
       </button>
-      {mapType === "heatmap" ? <Map /> : <PointMap />}
+      {mapComponent}
     </div>
   );
 }
