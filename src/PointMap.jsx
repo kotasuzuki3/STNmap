@@ -104,10 +104,20 @@ export default function PointMap() {
           [point.latitude, point.longitude],
           { icon: customIcon }
         ).addTo(pointLayerRef.current);
-
-        marker.bindPopup(
-          `<strong>${point.name}</strong><br>Location: ${point.city}, ${point.state}<br>${point.description}`
-        );
+        
+        // Modify your popup code
+        marker.bindPopup(`
+          <div class="popup-content">
+            <strong>${point.first_name} ${point.last_name}</strong><br>
+            Location: ${point.city}, ${point.state}<br>
+            Incident Date: ${point.incident_date}<br>
+            Gender: ${point.gender}<br>
+            Age: ${point.age}<br>
+            <div class="popup-bio">
+              Description: ${point.bio_info}
+            </div>
+          </div>
+        `);
       });
     };
 
@@ -214,7 +224,6 @@ export default function PointMap() {
       <div id="alaska-map" className="alaska-map"></div>
       <div id="hawaii-map" className="hawaii-map"></div>
         <div className="dashboard">
-          <h2>Dashboard</h2>
           <div className="filter">
             <label htmlFor="stateFilter">Select State:</label>
             <select

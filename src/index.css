@@ -297,3 +297,20 @@
   width: 100vw;
   height: 100vh;
 }
+
+.popup-content {
+  font-family: "Metrophobic", sans-serif;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.popup-content strong {
+  font-weight: bold;
+  font-size: 20px; 
+}
+
+.popup-bio {
+  font-family: "Metrophobic", sans-serif;
+  max-height: 100px;
+  overflow-y: auto;
+}

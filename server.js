@@ -25,7 +25,29 @@ client.connect()
 
   app.get('/api/data', async (req, res) => {
     try {
-      const query = 'SELECT latitude, longitude, incident_date, city, state, description FROM api_incident';
+      const query = `
+  SELECT
+    i.latitude,
+    i.longitude,
+    i.incident_date,
+    i.city,
+    i.state,
+    v.first_name,
+    v.last_name,
+    v.age,
+    CASE
+      WHEN v.gender_id = 0 THEN 'Female'
+      WHEN v.gender_id = 1 THEN 'Transgender'
+      WHEN v.gender_id IN (2, 3, 4) THEN 'Male'
+      WHEN v.gender_id = 5 THEN 'Unknown'
+      ELSE 'N/A'
+    END AS gender,
+    v.bio_info
+  FROM api_incident i
+  INNER JOIN api_incident_victim iv ON i.id = iv.incident_id
+  INNER JOIN api_victim v ON iv.victim_id = v.id;
+`;
+  
       const result = await client.query(query);
       const rows = result.rows;
       res.json(rows);
@@ -33,7 +55,7 @@ client.connect()
       console.error('Error executing query:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
-  });  
+  });
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
