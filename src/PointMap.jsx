@@ -16,11 +16,14 @@ export default function PointMap() {
   const [activeButton, setActiveButton] = useState("");
   const [selectedState, setSelectedState] = useState("All");
   const [map, setMap] = useState(null); 
+  const [selectedGender, setSelectedGender] = useState("All");
 
 
 
   const cities = [...new Set(pointData.map((point) => point.city))];
   const states = [...new Set(pointData.map((point) => point.state))];
+  const genders = [...new Set(pointData.map((point) => point.gender))];
+
 
   const toggleAbout = () => {
     setShowAbout(!showAbout);
@@ -87,9 +90,11 @@ export default function PointMap() {
       } else {
         pointLayerRef.current.clearLayers();
       }
-
+  
       const filteredData = validData.filter(
-        (point) => selectedState === "All" || point.state === selectedState
+        (point) =>
+          (selectedState === "All" || point.state === selectedState) &&
+          (selectedGender === "All" || point.gender === selectedGender)
       );
 
       filteredData.forEach((point) => {
@@ -180,7 +185,7 @@ export default function PointMap() {
     };
 
     initializeMap();
-  }, [selectedState]);
+  }, [selectedState, selectedGender]);
 
 
   return (
@@ -224,6 +229,18 @@ export default function PointMap() {
       <div id="alaska-map" className="alaska-map"></div>
       <div id="hawaii-map" className="hawaii-map"></div>
         <div className="dashboard">
+        <div className="filter">
+  <label htmlFor="genderFilter">Select Gender:</label>
+  <select
+    id="genderFilter"
+    value={selectedGender}
+    onChange={(e) => setSelectedGender(e.target.value)}
+  >
+    <option value="All">All</option>
+    <option value="Male">Male</option>
+    <option value="Female">Female</option>
+  </select>
+</div>
           <div className="filter">
             <label htmlFor="stateFilter">Select State:</label>
             <select
