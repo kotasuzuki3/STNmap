@@ -5,6 +5,8 @@ import "./index.css";
 
 export default function PointMap() {
   const mapRef = useRef(null);
+  const alaskaMapRef = useRef(null);
+  const hawaiiMapRef = useRef(null);
   const [alaskaMap, setAlaskaMap] = useState(null);
   const [hawaiiMap, setHawaiiMap] = useState(null);
   const pointLayerRef = useRef(null);
@@ -13,6 +15,8 @@ export default function PointMap() {
   const [showMethodology, setShowMethodology] = useState(false);
   const [activeButton, setActiveButton] = useState("");
   const [selectedState, setSelectedState] = useState("All");
+  const [map, setMap] = useState(null); 
+
 
 
   const cities = [...new Set(pointData.map((point) => point.city))];
@@ -77,22 +81,19 @@ export default function PointMap() {
   };
 
   useEffect(() => {
-    let map;
-    let alaskaMap;
-    let hawaiiMap;
-    
     const updateMapWithFilteredData = (validData) => {
       if (!pointLayerRef.current) {
         pointLayerRef.current = L.featureGroup().addTo(map);
+      } else {
+        pointLayerRef.current.clearLayers();
       }
 
-      const filteredData = filterDataByState(validData);
+      const filteredData = validData.filter(
+        (point) => selectedState === "All" || point.state === selectedState
+      );
 
-      // Clear existing markers from the pointLayer
-      pointLayerRef.current.clearLayers();
-
-      // Add filtered markers to the pointLayer
       filteredData.forEach((point) => {
+        // Create and add markers to the pointLayer for filtered data
         const customIcon = L.icon({
           iconUrl:
             "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-Free-Download-PNG.png",
@@ -113,47 +114,58 @@ export default function PointMap() {
     const initializeMap = async () => {
       try {
         const response = await fetch("http://localhost:3001/api/data");
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
         const jsonData = await response.json();
-        const validData = filterValidData(jsonData);
+        const validData = jsonData
+          .filter((point) => point.latitude !== null && point.longitude !== null)
+          .map((point) => ({
+            ...point,
+            incident_date: new Date(point.incident_date).toISOString().split("T")[0],
+          }));
         setPointData(validData);
 
-        map = L.map(mapRef.current, {
-          zoomControl: false,
-        }).setView([40.0902, -100.7129], 5);
+        if (!map) {
+          const newMap = L.map(mapRef.current, {
+            zoomControl: false,
+          }).setView([40.0902, -100.7129], 5);
 
-        const basemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-          attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
-          minZoom: 3,
-        });
-        basemapLayer.addTo(map);
+          const basemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+            attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+            minZoom: 3,
+          });
+          basemapLayer.addTo(newMap);
 
-        // Initialize the Alaska Map
-        alaskaMap = L.map("alaska-map", {
-          zoomControl: false,
-        }).setView([64.2008, -149.4937], 2); // Coordinates for Alaska
+          setMap(newMap);
 
-        // Add the same basemap style to the Alaska map
-        const alaskaBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-          minZoom: 3,
-        });
-        alaskaBasemapLayer.addTo(alaskaMap);
-        setAlaskaMap(alaskaMap);
+          // Initialize the Alaska Map
+          const alaskaMap = L.map("alaska-map", {
+            zoomControl: false,
+          }).setView([64.2008, -149.4937], 2);
+          alaskaMapRef.current = alaskaMap;
 
-        // Initialize Hawaii map
-        hawaiiMap = L.map("hawaii-map", {
-          zoomControl: false,
-        }).setView([21.3114, -157.7964], 5); 
+          const alaskaBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+            minZoom: 3,
+          });
+          alaskaBasemapLayer.addTo(alaskaMap);
 
-        const hawaiiBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-          minZoom: 3,
-        });
-        hawaiiBasemapLayer.addTo(hawaiiMap);
-        setHawaiiMap(hawaiiMap);
+          // Initialize the Hawaii map
+          const hawaiiMap = L.map("hawaii-map", {
+            zoomControl: false,
+          }).setView([21.3114, -157.7964], 5);
+          hawaiiMapRef.current = hawaiiMap;
 
-        pointLayerRef.current = L.featureGroup().addTo(map);
+          const hawaiiBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+            minZoom: 3,
+          });
+          hawaiiBasemapLayer.addTo(hawaiiMap);
+        }
+
+
         updateMapWithFilteredData(validData);
       } catch (error) {
-        console.error("Error initializing point map:", error);
+        console.error("Error initializing main map:", error);
       }
     };
 
