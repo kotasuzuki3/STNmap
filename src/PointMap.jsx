@@ -112,16 +112,17 @@ export default function PointMap() {
         
         // Modify your popup code
         marker.bindPopup(`
-          <div class="popup-content">
-            <strong>${point.first_name} ${point.last_name}</strong><br>
-            Location: ${point.city}, ${point.state}<br>
-            Incident Date: ${point.incident_date}<br>
-            Gender: ${point.gender}<br>
-            Age: ${point.age}<br>
-            <div class="popup-bio">
-              Description: ${point.bio_info}
-            </div>
-          </div>
+        <div class="popup-content">
+    <img src="${point.url}" alt="${point.first_name} ${point.last_name}" style="width: 100px; height: 110px;"><br>
+    <strong>${point.first_name} ${point.last_name}</strong><br>
+    Location: ${point.city}, ${point.state}<br>
+    Incident Date: ${point.incident_date}<br>
+    Gender: ${point.gender}<br>
+    Age: ${point.age}<br>
+    <div class="popup-bio">
+        Description: ${point.bio_info}
+    </div>
+</div>
         `);
       });
     };

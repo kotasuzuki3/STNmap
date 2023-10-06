@@ -26,26 +26,29 @@ client.connect()
   app.get('/api/data', async (req, res) => {
     try {
       const query = `
-  SELECT
-    i.latitude,
-    i.longitude,
-    i.incident_date,
-    i.city,
-    i.state,
-    v.first_name,
-    v.last_name,
-    v.age,
-    CASE
-      WHEN v.gender_id = 0 THEN 'Female'
-      WHEN v.gender_id = 1 THEN 'Transgender'
-      WHEN v.gender_id IN (2, 3, 4) THEN 'Male'
-      WHEN v.gender_id = 5 THEN 'Unknown'
-      ELSE 'N/A'
-    END AS gender,
-    v.bio_info
+      SELECT
+      i.latitude,
+      i.longitude,
+      i.incident_date,
+      i.city,
+      i.state,
+      v.first_name,
+      v.last_name,
+      v.age,
+      CASE
+        WHEN v.gender_id = 0 THEN 'Female'
+        WHEN v.gender_id = 1 THEN 'Transgender'
+        WHEN v.gender_id IN (2, 3, 4) THEN 'Male'
+        WHEN v.gender_id = 5 THEN 'Unknown'
+        ELSE 'N/A'
+      END AS gender,
+      v.bio_info,
+      m.url
   FROM api_incident i
   INNER JOIN api_incident_victim iv ON i.id = iv.incident_id
-  INNER JOIN api_victim v ON iv.victim_id = v.id;
+  INNER JOIN api_victim v ON iv.victim_id = v.id
+  LEFT JOIN api_victim_media_reference vmr ON iv.victim_id = vmr.victim_id
+  LEFT JOIN api_mediareference m ON vmr.mediareference_id = m.id;
 `;
   
       const result = await client.query(query);
