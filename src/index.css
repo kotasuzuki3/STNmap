@@ -314,3 +314,39 @@
   max-height: 100px;
   overflow-y: auto;
 }
+
+.range-slider {
+  position: relative;
+}
+
+input[type="range"] {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 10px;
+  background: transparent;
+  outline: none;
+  margin: 0;
+  padding: 0;
+}
+
+.slider-track {
+  position: absolute;
+  height: 10px;
+  width: 100%;
+  background-color: #ccc;
+  border-radius: 5px;
+  top: 50%; /* Add this line */
+  transform: translateY(-50%); /* Add this line */
+}
+
+.slider-range {
+  position: absolute;
+  height: 100%;
+  background-color: #007bff;
+  border-radius: 5px;
+}
+
+.dashboard {
+  font-family: "Metrophobic", sans-serif;
+}

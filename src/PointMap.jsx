@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "./index.css";
+import InputRange from 'react-input-range';
 
 export default function PointMap() {
   const mapRef = useRef(null);
@@ -17,6 +18,7 @@ export default function PointMap() {
   const [selectedState, setSelectedState] = useState("All");
   const [map, setMap] = useState(null); 
   const [selectedGender, setSelectedGender] = useState("All");
+  const [selectedAgeRange, setSelectedAgeRange] = useState([0, 100]); 
 
 
 
@@ -67,6 +69,14 @@ export default function PointMap() {
       return validData.filter((point) => point.state === selectedState);
     }
   };
+  
+  const filterDataByAgeRange = (validData) => {
+    const [minAge, maxAge] = selectedAgeRange;
+    return validData.filter((point) => {
+      const age = point.age;
+      return age >= minAge && age <= maxAge;
+    });
+  };
 
   const handleResetZoom = () => {
     const map = mapRef.current;
@@ -91,11 +101,16 @@ export default function PointMap() {
         pointLayerRef.current.clearLayers();
       }
   
-      const filteredData = validData.filter(
-        (point) =>
-          (selectedState === "All" || point.state === selectedState) &&
-          (selectedGender === "All" || point.gender === selectedGender)
-      );
+      const filteredData = validData
+        .filter(
+          (point) =>
+            (selectedState === "All" || point.state === selectedState) &&
+            (selectedGender === "All" || point.gender === selectedGender)
+        )
+        .filter((point) => {
+          const age = point.age;
+          return age >= selectedAgeRange[0] && age <= selectedAgeRange[1];
+        });
 
       filteredData.forEach((point) => {
         // Create and add markers to the pointLayer for filtered data
@@ -186,7 +201,7 @@ export default function PointMap() {
     };
 
     initializeMap();
-  }, [selectedState, selectedGender]);
+  }, [selectedState, selectedGender, selectedAgeRange]);
 
 
   return (
@@ -242,7 +257,7 @@ export default function PointMap() {
     <option value="Female">Female</option>
   </select>
 </div>
-          <div className="filter">
+<div className="filter">
             <label htmlFor="stateFilter">Select State:</label>
             <select
               id="stateFilter"
@@ -257,7 +272,42 @@ export default function PointMap() {
               ))}
             </select>
           </div>
-        </div>
+          <div className="filter">
+  <label htmlFor="ageRangeFilter">Select Age Range:</label>
+  <div className="range-slider">
+    <input
+      type="range"
+      min={0}
+      max={100}
+      value={selectedAgeRange[0]}
+      onChange={(e) =>
+        setSelectedAgeRange([parseInt(e.target.value), selectedAgeRange[1]])
+      }
+    />
+    <input
+      type="range"
+      min={0}
+      max={100}
+      value={selectedAgeRange[1]}
+      onChange={(e) =>
+        setSelectedAgeRange([selectedAgeRange[0], parseInt(e.target.value)])
+      }
+    />
+    <div className="slider-track">
+      <div
+        className="slider-range"
+        style={{
+          left: `${(selectedAgeRange[0] / 100) * 100}%`,
+          width: `${((selectedAgeRange[1] - selectedAgeRange[0]) / 100) * 100}%`,
+        }}
+      ></div>
+    </div>
+  </div>
+  <div>
+    {selectedAgeRange[0]} - {selectedAgeRange[1]} years
+  </div>
+</div>
+      </div>
       {showAbout && (
         <div className="popup">
           <div className="popup-content">
