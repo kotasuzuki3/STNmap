@@ -23,6 +23,12 @@ export default function Map() {
   const [dateRange, setDateRange] = useState({ minDate: new Date(), maxDate: new Date() });
   const [activeButton, setActiveButton] = useState("");
   const autoplayIntervalRef = useRef(null);
+  const [selectedState, setSelectedState] = useState("All");
+  const [selectedGender, setSelectedGender] = useState("All");
+  const [selectedAgeRange, setSelectedAgeRange] = useState([0, 100]);
+  const [mapInitialized, setMapInitialized] = useState(false);
+
+  const states = [...new Set(heatmapData.map((point) => point.state))];
 
   const toggleSubmit = () => {
     window.open("https://form.jotform.com/222938481763163", "_blank");
@@ -211,7 +217,17 @@ export default function Map() {
         timeLabelRef.current.textContent = formattedDate;
       }
 
-      const filteredData = validData.filter((dataPoint) => new Date(dataPoint.incident_date) <= currentTime);
+      const filteredData = validData
+        .filter((dataPoint) => new Date(dataPoint.incident_date) <= currentTime)
+        .filter(
+          (dataPoint) =>
+            (selectedState === "All" || dataPoint.state === selectedState) &&
+            (selectedGender === "All" || dataPoint.gender === selectedGender)
+        )
+        .filter((dataPoint) => {
+          const age = dataPoint.age;
+          return age >= selectedAgeRange[0] && age <= selectedAgeRange[1];
+        });
 
       const heatPoints = filteredData.map((point) => [
         parseFloat(point.latitude),
@@ -368,6 +384,7 @@ export default function Map() {
 
         timeSliderRef.current.addEventListener("input", updateHeatmap);
         updateHeatmap();
+        setMapInitialized(true);
       } catch (error) {
         console.error("Error initializing map:", error);
       }
@@ -399,6 +416,12 @@ export default function Map() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (mapInitialized) {
+      updateHeatmap();
+    }
+  }, [selectedState, selectedGender, selectedAgeRange]);
 
   const handleResetZoom = () => {
     const map = mapRef.current;
@@ -506,6 +529,67 @@ export default function Map() {
                     style={{ width: "25px", height: "25px" }}
                   />
                 </div>
+                <div className="filters">
+        <div className="filter">
+          <label htmlFor="stateFilter">Select State:</label>
+            <select
+              id="stateFilter"
+              value={selectedState}
+              onChange={(e) => setSelectedState(e.target.value)}
+            >
+              <option value="All">All</option>
+              {states.map((state) => (
+                <option key={state} value={state}>
+                  {state}
+                </option>
+              ))}
+            </select>
+        </div>
+        <div className="filter">
+          <label htmlFor="genderFilter">Select Gender:</label>
+  <select
+    id="genderFilter"
+    value={selectedGender}
+    onChange={(e) => setSelectedGender(e.target.value)}
+  >
+    <option value="All">All</option>
+    <option value="Male">Male</option>
+    <option value="Female">Female</option>
+  </select>
+        </div>
+        <div className="filter">
+        <label htmlFor="ageRangeFilter">Select Age Range:</label>
+  <div className="range-slider">
+    <input
+      type="range"
+      min={0}
+      max={100}
+      value={selectedAgeRange[0]}
+      onChange={(e) =>
+        setSelectedAgeRange([parseInt(e.target.value), selectedAgeRange[1]])
+      }
+    />
+    <input
+      type="range"
+      min={0}
+      max={100}
+      value={selectedAgeRange[1]}
+      onChange={(e) =>
+        setSelectedAgeRange([selectedAgeRange[0], parseInt(e.target.value)])
+      }
+    />
+    <div className="slider-track">
+      <div
+        className="slider-range"
+        style={{
+          left: `${(selectedAgeRange[0] / 100) * 100}%`,
+          width: `${((selectedAgeRange[1] - selectedAgeRange[0]) / 100) * 100}%`,
+        }}
+      ></div>
+    </div>
+  </div>
+        </div>
+      </div>
               </div>
             </div>
           )}
