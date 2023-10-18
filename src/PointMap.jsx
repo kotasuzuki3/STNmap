@@ -9,17 +9,25 @@ export default function PointMap() {
   const hawaiiMapRef = useRef(null);
   const [alaskaMap, setAlaskaMap] = useState(null);
   const [hawaiiMap, setHawaiiMap] = useState(null);
+  const [autoplay, setAutoplay] = useState(false);
   const pointLayerRef = useRef(null);
   const [pointData, setPointData] = useState([]);
   const [showAbout, setShowAbout] = useState(false);
   const [showMethodology, setShowMethodology] = useState(false);
   const [activeButton, setActiveButton] = useState("");
+  const [dateRange, setDateRange] = useState({ minDate: new Date(), maxDate: new Date() });
   const [map, setMap] = useState(null); 
   const [selectedState, setSelectedState] = useState("All");
   const [selectedGender, setSelectedGender] = useState("All");
   const [selectedAgeRange, setSelectedAgeRange] = useState([0, 100]);
- 
-  
+  const timeSliderRef = useRef(null);
+  const timeLabelRef = useRef(null);
+  const autoplayIntervalRef = useRef(null);
+  const [showDashboard, setShowDashboard] = useState(true);
+  const [showDashboardContent, setShowDashboardContent] = useState(true);
+  const [dashboardVisible, setDashboardVisible] = useState(true);
+
+  const [selectedTime, setSelectedTime] = useState(new Date("2010-01-01"));
 
   const stateCoordinates = {
     AL: { lat: 32.806671, lon: -86.791130 },
@@ -79,6 +87,14 @@ export default function PointMap() {
   const states = [...new Set(pointData.map((point) => point.state))];
   const genders = [...new Set(pointData.map((point) => point.gender))];
 
+  const toggleDashboard = () => {
+    if (showDashboard) {
+      setDashboardVisible(false);
+    } else {
+      setDashboardVisible(true);
+    }
+    setShowDashboard(!showDashboard);
+  };
 
   const toggleAbout = () => {
     setShowAbout(!showAbout);
@@ -327,21 +343,59 @@ export default function PointMap() {
       <div ref={mapRef} className="map"></div>
       <div id="alaska-map" className="alaska-map"></div>
       <div id="hawaii-map" className="hawaii-map"></div>
-        <div className="dashboard">
+        {showDashboard && (
+        <div className={`dashboard ${dashboardVisible ? "" : "collapsed"}`}>
+          <div className="dashboard-header">
+            <div className="dashboard-title"></div>
+            <img
+              src={dashboardVisible ? "https://cdn3.iconfinder.com/data/icons/arrows-219/24/collapse-left-512.png" : "https://cdn.iconscout.com/icon/free/png-256/free-collapse-right-1485695-1258916.png?f=webp"}
+              alt={dashboardVisible ? "Collapse" : "Reopen"}
+              className="dashboard-icon"
+              onClick={toggleDashboard}
+              style={{ width: "30px", height: "30px", marginTop: "0px" }}
+            />
+          </div>
+          <div className="logo-container">
+          </div>
+          {showDashboardContent && (
+            <div className="dashboard-content">
+              <div className="dashboard-section">
+                <div className="dashboard-section-title"></div>
+                <div className="dashboard-section-content">
+                  <img
+                    src="https://cdn.icon-icons.com/icons2/1863/PNG/512/zoom-out-map_118446.png"
+                    alt="Reset Zoom"
+                    className="dashboard-icon"
+                    onClick={handleResetZoom}
+                    style={{ width: "25px", height: "25px", marginLeft: "-225px", transform: "translateY(-45px)", }}
+                  />
+                </div>
+              </div>
+              <div className="dashboard-section">
+                <div className="dashboard-section-title">Time Slider</div>
+                <div className="dashboard-section-content">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    defaultValue="0"
+                    className="time-slider"
+                    ref={timeSliderRef}
+                    //onChange={initializeMap}
+                  />
+                  <div className="time-label" ref={timeLabelRef}></div>
+                  <img
+                    src={autoplay ? "https://www.pngall.com/wp-content/uploads/5/Pause-Button-Transparent.png" : "https://cdn-icons-png.flaticon.com/512/2/2287.png"}
+                    alt="Play/Pause"
+                    className={`autoplay-icon ${autoplay ? "active" : ""}`}
+                    //onClick={handleAutoplay}
+                    style={{ width: "25px", height: "25px" }}
+                  />
+                </div>
+                <div className="filters">
         <div className="filter">
-  <label htmlFor="genderFilter">Select Gender:</label>
-  <select
-    id="genderFilter"
-    value={selectedGender}
-    onChange={(e) => setSelectedGender(e.target.value)}
-  >
-    <option value="All">All</option>
-    <option value="Male">Male</option>
-    <option value="Female">Female</option>
-  </select>
-</div>
-<div className="filter">
-            <label htmlFor="stateFilter">Select State:</label>
+          <label htmlFor="stateFilter">Select State:</label>
             <select
               id="stateFilter"
               value={selectedState}
@@ -354,8 +408,20 @@ export default function PointMap() {
                 </option>
               ))}
             </select>
-          </div>
-          <div className="filter">
+        </div>
+        <div className="filter">
+          <label htmlFor="genderFilter">Select Gender:</label>
+  <select
+    id="genderFilter"
+    value={selectedGender}
+    onChange={(e) => setSelectedGender(e.target.value)}
+  >
+    <option value="All">All</option>
+    <option value="Male">Male</option>
+    <option value="Female">Female</option>
+  </select>
+        </div>
+        <div className="filter">
   <label htmlFor="ageRangeFilter">Select Age Range:</label>
   <div className="range-slider">
     <input
@@ -376,21 +442,26 @@ export default function PointMap() {
         setSelectedAgeRange([selectedAgeRange[0], parseInt(e.target.value)])
       }
     />
-    <div className="slider-track">
-      <div
-        className="slider-range"
-        style={{
-          left: `${(selectedAgeRange[0] / 100) * 100}%`,
-          width: `${((selectedAgeRange[1] - selectedAgeRange[0]) / 100) * 100}%`,
-        }}
-      ></div>
-    </div>
   </div>
   <div>
     {selectedAgeRange[0]} - {selectedAgeRange[1]} years
   </div>
-</div>
+        </div>
       </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      {!showDashboard && !dashboardVisible && (
+            <img
+              src="https://cdn.iconscout.com/icon/free/png-256/free-collapse-right-1485695-1258916.png?f=webp"
+              alt="Reopen"
+              className="reopen-button"
+              onClick={toggleDashboard}
+              style={{ width: "25px", height: "25px", marginLeft: "-30px", marginTop: "0px" }}
+            />
+      )}
       {showAbout && (
         <div className="popup">
           <div className="popup-content">
