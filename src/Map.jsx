@@ -224,6 +224,7 @@ export default function Map() {
   };
 
   const updateHeatmap = async () => {
+    let map = mapRef.current
     try {
       const response = await fetch("http://localhost:3001/api/data");
       const jsonData = await response.json();
@@ -325,6 +326,12 @@ export default function Map() {
 
       if (autoplay && showDashboard) {
         startAutoplay();
+      }
+
+      if (selectedState !== 'All' && selectedState in stateCoordinates) {
+        map.setView([stateCoordinates[selectedState].lat, stateCoordinates[selectedState].lon], 6);
+      } else {
+        map.setView([40.0902, -100.7129], 5);
       }
 
       
@@ -472,7 +479,7 @@ export default function Map() {
   }, []);
 
   useEffect(() => {
-
+    let map; 
     if (mapInitialized) {
       updateHeatmap();
     }

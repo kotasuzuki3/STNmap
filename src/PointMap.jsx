@@ -87,6 +87,7 @@ export default function PointMap() {
   const states = [...new Set(pointData.map((point) => point.state))];
   const genders = [...new Set(pointData.map((point) => point.gender))];
 
+
   const toggleDashboard = () => {
     if (showDashboard) {
       setDashboardVisible(false);
@@ -160,19 +161,19 @@ export default function PointMap() {
   };
 
   const handleResetZoom = () => {
-    const map = mapRef.current;
-    map.setView([40.0902, -100.7129], 5);
+    
+      map.setView([40.0902, -100.7129], 5);
   
     // Reset Alaska map's view
-    if (alaskaMap) {
-      alaskaMap.setView([64.2008, -149.4937], 2);
+    if (alaskaMapRef.current) {
+      alaskaMapRef.current.setView([64.2008, -149.4937], 2);
     }
   
     // Reset Hawaii map's view
-    if (hawaiiMap) {
-      hawaiiMap.setView([21.3114, -157.7964], 5);
+    if (hawaiiMapRef.current) {
+      hawaiiMapRef.current.setView([21.3114, -157.7964], 5);
     }
-  };
+};
 
   const calculateFormattedDate = (sliderValue) => {
     const minDate = new Date("2010-01-01");
@@ -204,6 +205,7 @@ export default function PointMap() {
   };
 
   useEffect(() => {
+
     const updateMapWithFilteredData = (validData) => {
       if (!pointLayerRef.current) {
         pointLayerRef.current = L.featureGroup().addTo(map);
