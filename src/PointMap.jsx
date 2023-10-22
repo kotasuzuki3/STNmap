@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { debounce } from 'lodash';
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "./index.css";
@@ -15,7 +16,6 @@ export default function PointMap() {
   const [showAbout, setShowAbout] = useState(false);
   const [showMethodology, setShowMethodology] = useState(false);
   const [activeButton, setActiveButton] = useState("");
-  const [dateRange, setDateRange] = useState({ minDate: new Date(), maxDate: new Date() });
   const [map, setMap] = useState(null); 
   const [selectedState, setSelectedState] = useState("All");
   const [selectedGender, setSelectedGender] = useState("All");
@@ -120,6 +120,34 @@ export default function PointMap() {
     window.open("https://form.jotform.com/231036759147055", "_blank");
   };
 
+  const handleTimeSliderChange = debounce(() => {
+    const timeSlider = timeSliderRef.current;
+    const value = parseInt(timeSlider.value);
+  
+    const minDate = new Date("2010-01-01");
+    const maxDate = new Date(Math.max(...pointData.map((point) => new Date(point.incident_date))));
+    
+    const selectedTimestamp = +minDate + (+maxDate - +minDate) * (value / 100);
+  
+    const selectedDate = new Date(selectedTimestamp);
+  
+    setSelectedTime(selectedDate);
+
+    const formattedDate = `${(selectedDate.getMonth() + 1).toString().padStart(2, '0')}/${selectedDate.getDate().toString().padStart(2, '0')}/${selectedDate.getFullYear()}`;
+
+    timeLabelRef.current.textContent = formattedDate;
+  
+    updateMapWithSelectedTime(selectedTimestamp);
+  }, 500);
+
+  const updateMapWithSelectedTime = (selectedTimestamp) => {
+    // Filter data based on the selected time
+    const filteredData = pointData.filter((point) => {
+      const incidentTimestamp = new Date(point.incident_date).getTime();
+      return incidentTimestamp <= selectedTimestamp;
+    });
+  };
+
   const filterValidData = (data) => {
     const validData = data
       .filter((point) => point.latitude !== null && point.longitude !== null)
@@ -129,22 +157,6 @@ export default function PointMap() {
       }));
 
     return validData;
-  };
-
-  const filterDataByState = (validData) => {
-    if (selectedState === "All") {
-      return validData;
-    } else {
-      return validData.filter((point) => point.state === selectedState);
-    }
-  };
-  
-  const filterDataByAgeRange = (validData) => {
-    const [minAge, maxAge] = selectedAgeRange;
-    return validData.filter((point) => {
-      const age = point.age;
-      return age >= minAge && age <= maxAge;
-    });
   };
 
   const handleResetZoom = () => {
@@ -161,7 +173,35 @@ export default function PointMap() {
       hawaiiMap.setView([21.3114, -157.7964], 5);
     }
   };
+
+  const calculateFormattedDate = (sliderValue) => {
+    const minDate = new Date("2010-01-01");
+    const maxDate = new Date(Math.max(...pointData.map((point) => new Date(point.incident_date))));
+    const step = (maxDate - minDate) / 100;
   
+    const selectedTimestamp = +minDate + step * sliderValue;
+    const selectedDate = new Date(selectedTimestamp);
+    return `${(selectedDate.getMonth() + 1).toString().padStart(2, '0')}/${selectedDate.getDate().toString().padStart(2, '0')}/${selectedDate.getFullYear()}`;
+  };
+
+  const handleAutoplay = () => {
+    setAutoplay(!autoplay);
+  
+    if (autoplay) {
+      
+      clearInterval(autoplayIntervalRef.current);
+    } else {
+      
+      autoplayIntervalRef.current = setInterval(() => {
+        const timeSlider = timeSliderRef.current;
+        const currentValue = parseInt(timeSlider.value);
+        const newValue = (currentValue + 1) % 101; 
+        timeSlider.value = newValue;
+        timeLabelRef.current.textContent = calculateFormattedDate(newValue);
+        handleTimeSliderChange();
+      }, 200);
+    }
+  };
 
   useEffect(() => {
     const updateMapWithFilteredData = (validData) => {
@@ -170,6 +210,9 @@ export default function PointMap() {
       } else {
         pointLayerRef.current.clearLayers();
       }
+
+      const formattedDate = `${(selectedTime.getMonth() + 1).toString().padStart(2, '0')}/${selectedTime.getDate().toString().padStart(2, '0')}/${selectedTime.getFullYear()}`;
+      timeLabelRef.current.textContent = formattedDate;
   
       const filteredData = validData
         .filter(
@@ -180,7 +223,12 @@ export default function PointMap() {
         .filter((point) => {
           const age = point.age;
           return age >= selectedAgeRange[0] && age <= selectedAgeRange[1];
-        });
+        })
+        .filter(
+          (point) =>
+          new Date(point.incident_date).getTime() <= selectedTime
+        );
+        
 
       filteredData.forEach((point) => {
         // Create and add markers to the pointLayer for filtered data
@@ -282,6 +330,10 @@ export default function PointMap() {
           hawaiiBasemapLayer.addTo(hawaiiMap);
         }
         updateMapWithFilteredData(validData);
+
+        const timeSlider = timeSliderRef.current;
+        timeSlider.addEventListener('input', handleTimeSliderChange);
+
       } catch (error) {
         console.error("Error initializing main map:", error);
       }
@@ -300,7 +352,7 @@ export default function PointMap() {
       }
     }
     initializeMap();
-  }, [selectedState, selectedGender, selectedAgeRange]);
+  }, [selectedState, selectedGender, selectedAgeRange, selectedTime]);
 
 
   return (
@@ -382,20 +434,21 @@ export default function PointMap() {
                     defaultValue="0"
                     className="time-slider"
                     ref={timeSliderRef}
-                    //onChange={initializeMap}
+                    onInput={handleTimeSliderChange}
                   />
                   <div className="time-label" ref={timeLabelRef}></div>
                   <img
                     src={autoplay ? "https://www.pngall.com/wp-content/uploads/5/Pause-Button-Transparent.png" : "https://cdn-icons-png.flaticon.com/512/2/2287.png"}
                     alt="Play/Pause"
                     className={`autoplay-icon ${autoplay ? "active" : ""}`}
-                    //onClick={handleAutoplay}
+                    onClick={handleAutoplay}
                     style={{ width: "25px", height: "25px" }}
                   />
                 </div>
+                <br></br>
                 <div className="filters">
         <div className="filter">
-          <label htmlFor="stateFilter">Select State:</label>
+          <label htmlFor="stateFilter">Select State:  </label>
             <select
               id="stateFilter"
               value={selectedState}
@@ -410,7 +463,7 @@ export default function PointMap() {
             </select>
         </div>
         <div className="filter">
-          <label htmlFor="genderFilter">Select Gender:</label>
+          <label htmlFor="genderFilter">Select Gender:  </label>
   <select
     id="genderFilter"
     value={selectedGender}

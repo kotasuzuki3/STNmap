@@ -583,9 +583,10 @@ export default function Map() {
                     style={{ width: "25px", height: "25px" }}
                   />
                 </div>
+                <br></br>
                 <div className="filters">
         <div className="filter">
-          <label htmlFor="stateFilter">Select State:</label>
+          <label htmlFor="stateFilter">Select State:  </label>
             <select
               id="stateFilter"
               value={selectedState}
@@ -600,7 +601,7 @@ export default function Map() {
             </select>
         </div>
         <div className="filter">
-          <label htmlFor="genderFilter">Select Gender:</label>
+          <label htmlFor="genderFilter">Select Gender:  </label>
   <select
     id="genderFilter"
     value={selectedGender}
