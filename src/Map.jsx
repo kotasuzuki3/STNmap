@@ -394,7 +394,7 @@ export default function Map() {
         const maxDate = new Date(Math.max(...validData.map((point) => new Date(point.incident_date))));
         setDateRange({ minDate, maxDate });
 
-        const initialTimelineValue = 0;
+        const initialTimelineValue = 100;
         timeSliderRef.current.value = initialTimelineValue;
 
         heatLayer = L.heatLayer([], {
@@ -479,7 +479,6 @@ export default function Map() {
   }, []);
 
   useEffect(() => {
-    let map; 
     if (mapInitialized) {
       updateHeatmap();
     }
