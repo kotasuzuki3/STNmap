@@ -8,8 +8,6 @@ export default function PointMap() {
   const mapRef = useRef(null);
   const alaskaMapRef = useRef(null);
   const hawaiiMapRef = useRef(null);
-  const [alaskaMap, setAlaskaMap] = useState(null);
-  const [hawaiiMap, setHawaiiMap] = useState(null);
   const [autoplay, setAutoplay] = useState(false);
   const pointLayerRef = useRef(null);
   const [pointData, setPointData] = useState([]);
@@ -28,6 +26,20 @@ export default function PointMap() {
   const [dashboardVisible, setDashboardVisible] = useState(true);
 
   const [selectedTime, setSelectedTime] = useState(new Date("2010-01-01"));
+
+  const filterValidData = (data) => {
+    const validData = data
+      .filter((point) => point.latitude !== null && point.longitude !== null)
+      .map((point) => ({
+        ...point,
+        incident_date: new Date(point.incident_date).toISOString().split("T")[0],
+      }));
+
+    return validData;
+  };
+
+  const validData = filterValidData(pointData);
+  const timeSlider = timeSliderRef.current;
 
   const stateCoordinates = {
     AL: { lat: 32.806671, lon: -86.791130 },
@@ -149,17 +161,6 @@ export default function PointMap() {
     });
   };
 
-  const filterValidData = (data) => {
-    const validData = data
-      .filter((point) => point.latitude !== null && point.longitude !== null)
-      .map((point) => ({
-        ...point,
-        incident_date: new Date(point.incident_date).toISOString().split("T")[0],
-      }));
-
-    return validData;
-  };
-
   const handleResetZoom = () => {
     
       map.setView([40.0902, -100.7129], 5);
@@ -203,6 +204,24 @@ export default function PointMap() {
       }, 200);
     }
   };
+
+  useEffect(() => {
+    const initializeTimeline = () => {
+      if (timeSliderRef.current) {
+        const maxDate = new Date(Math.max(...validData.map((point) => new Date(point.incident_date))));
+        const selectedTimestamp = maxDate.getTime();
+        timeSliderRef.current.value = "100";
+  
+        const formattedDate = `${maxDate.getFullYear()}/${(maxDate.getMonth() + 1).toString().padStart(2, '0')}/${maxDate.getDate().toString().padStart(2, '0')}`;
+        timeLabelRef.current.textContent = formattedDate;
+  
+        updateMapWithSelectedTime(selectedTimestamp);
+      }
+    };
+  
+    initializeTimeline();
+  }, []);
+  
 
   useEffect(() => {
 
@@ -335,6 +354,7 @@ export default function PointMap() {
 
         const timeSlider = timeSliderRef.current;
         timeSlider.addEventListener('input', handleTimeSliderChange);
+      
 
       } catch (error) {
         console.error("Error initializing main map:", error);
