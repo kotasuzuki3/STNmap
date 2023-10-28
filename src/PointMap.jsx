@@ -204,24 +204,21 @@ export default function PointMap() {
       }, 200);
     }
   };
-
+  
   useEffect(() => {
     const initializeTimeline = () => {
-      if (timeSliderRef.current) {
         const maxDate = new Date(Math.max(...validData.map((point) => new Date(point.incident_date))));
         const selectedTimestamp = maxDate.getTime();
         timeSliderRef.current.value = "100";
   
-        const formattedDate = `${maxDate.getFullYear()}/${(maxDate.getMonth() + 1).toString().padStart(2, '0')}/${maxDate.getDate().toString().padStart(2, '0')}`;
+        const formattedDate = `11/12/2020`;
         timeLabelRef.current.textContent = formattedDate;
   
         updateMapWithSelectedTime(selectedTimestamp);
-      }
     };
-  
+
     initializeTimeline();
   }, []);
-  
 
   useEffect(() => {
 
