@@ -42,7 +42,7 @@
   padding: 20px;
   overflow-y: auto;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease; /* Update the transition property */
+  transition: all 0.3s ease; 
 }
 
 .dashboard.collapsed {
@@ -51,12 +51,12 @@
   overflow: hidden;
   background-color: transparent;
   box-shadow: none;
-  transition: all 0.3s ease; /* Update the transition property */
+  transition: all 0.3s ease; 
 }
 
 
 .dashboard.collapsed .dashboard-content {
-  display: none; /* Hide the dashboard content when collapsed */
+  display: none; 
 }
 
 .dashboard-toggle {
@@ -226,7 +226,6 @@
   z-index: 1003
 }
 
-/* Add this CSS to your existing styles */
 .menu {
   background-color: #333;
   color: white;
@@ -262,8 +261,8 @@
 .logo-text {
   position: absolute;
   font-family: "Metrophobic", sans-serif;
-  font-size: 27px; /* Adjust the font size as needed */
-  font-weight: bold; /* Make the text bold */
+  font-size: 27px; 
+  font-weight: bold;
   color: #ffffff;
   margin-left: 70px;
   top: 20px;
@@ -271,10 +270,10 @@
 
 .menu-item-list li {
   display: absolute; 
-  align-items: center; /* Align items vertically in the center */
-  justify-content: space-between; /* Distribute items evenly */
+  align-items: center; 
+  justify-content: space-between; 
   font-family: "Metrophobic", sans-serif;
-  margin-right: 20px; /* Add some right margin to create space between items */
+  margin-right: 20px; 
 }
 
 .dashboard-section-title {
