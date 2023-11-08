@@ -39,7 +39,6 @@ export default function PointMap() {
   };
 
   const validData = filterValidData(pointData);
-  const timeSlider = timeSliderRef.current;
 
   const stateCoordinates = {
     AL: { lat: 32.806671, lon: -86.791130 },
@@ -94,11 +93,7 @@ export default function PointMap() {
     WY: { lat: 42.755966, lon: -107.302490 },
   };
 
-
-  const cities = [...new Set(pointData.map((point) => point.city))];
   const states = [...new Set(pointData.map((point) => point.state))];
-  const genders = [...new Set(pointData.map((point) => point.gender))];
-
 
   const toggleDashboard = () => {
     if (showDashboard) {
@@ -151,14 +146,15 @@ export default function PointMap() {
     timeLabelRef.current.textContent = formattedDate;
   
     updateMapWithSelectedTime(selectedTimestamp);
-  }, 500);
+  }, 150);
 
   const updateMapWithSelectedTime = (selectedTimestamp) => {
-    // Filter data based on the selected time
-    const filteredData = pointData.filter((point) => {
+    const filteredData = validData.filter((point) => {
       const incidentTimestamp = new Date(point.incident_date).getTime();
       return incidentTimestamp <= selectedTimestamp;
     });
+  
+    updateMapWithFilteredData(filteredData);
   };
 
   const handleResetZoom = () => {
@@ -190,7 +186,6 @@ export default function PointMap() {
     setAutoplay(!autoplay);
   
     if (autoplay) {
-      
       clearInterval(autoplayIntervalRef.current);
     } else {
       
@@ -204,99 +199,85 @@ export default function PointMap() {
       }, 200);
     }
   };
-  
-  useEffect(() => {
-    const initializeTimeline = () => {
-        const maxDate = new Date(Math.max(...validData.map((point) => new Date(point.incident_date))));
-        const selectedTimestamp = maxDate.getTime();
-        timeSliderRef.current.value = "100";
-  
-        const formattedDate = `11/12/2020`;
-        timeLabelRef.current.textContent = formattedDate;
-  
-        updateMapWithSelectedTime(selectedTimestamp);
-    };
 
-    initializeTimeline();
-  }, []);
-
-  useEffect(() => {
-
-    const updateMapWithFilteredData = (validData) => {
-      if (!pointLayerRef.current) {
-        pointLayerRef.current = L.featureGroup().addTo(map);
-      } else {
-        pointLayerRef.current.clearLayers();
-      }
-
-      const formattedDate = `${(selectedTime.getMonth() + 1).toString().padStart(2, '0')}/${selectedTime.getDate().toString().padStart(2, '0')}/${selectedTime.getFullYear()}`;
-      timeLabelRef.current.textContent = formattedDate;
-  
-      const filteredData = validData
-        .filter(
-          (point) =>
-            (selectedState === "All" || point.state === selectedState) &&
-            (selectedGender === "All" || point.gender === selectedGender)
-        )
-        .filter((point) => {
-          const age = point.age;
-          return age >= selectedAgeRange[0] && age <= selectedAgeRange[1];
-        })
-        .filter(
-          (point) =>
-          new Date(point.incident_date).getTime() <= selectedTime
-        );
-        
-
-      filteredData.forEach((point) => {
-        // Create and add markers to the pointLayer for filtered data
-        const customIcon = L.icon({
-          iconUrl:
-            "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-Free-Download-PNG.png",
-          iconSize: [20, 20],
-        });
-
-        const marker = L.marker(
-          [point.latitude, point.longitude],
-          { icon: customIcon }
-        ).addTo(pointLayerRef.current);
-        
-        let popUpContent = `<div class="popup-content">`;
-    
-    if (point.url) {
-      popUpContent += `
-        <img src="${point.url}" alt="${point.first_name} ${point.last_name}" style="width: 100px; height: 110px;"><br>`;
+  const updateMapWithFilteredData = (validData) => {
+    if (map) {
+    if (!pointLayerRef.current) {
+      pointLayerRef.current = L.featureGroup().addTo(map);
+    } else {
+      pointLayerRef.current.clearLayers();
     }
+  }
 
-    popUpContent += `
-      <strong>${point.first_name} ${point.last_name}</strong><br>
-      Location: ${point.city}, ${point.state}<br>
-      Incident Date: ${point.incident_date}<br>
-      Gender: ${point.gender}<br>
-      Age: ${point.age}<br>
-      <div class="popup-bio">
-        Description: ${point.bio_info}
-      </div>
-    </div>`;
+    const filteredData = validData
+      .filter(
+        (point) =>
+          (selectedState === "All" || point.state === selectedState) &&
+          (selectedGender === "All" || point.gender === selectedGender)
+      )
+      .filter((point) => {
+        const age = point.age;
+        return age >= selectedAgeRange[0] && age <= selectedAgeRange[1];
+      })
+      .filter(
+        (point) =>
+        new Date(point.incident_date).getTime() <= selectedTime
+      );
+      
 
-    marker.bindPopup(popUpContent);
-
-    if (point.state === "AK") {
-      const alaskaMarker = L.marker(
-        [point.latitude, point.longitude],
-        { icon: customIcon }
-      ).addTo(alaskaMapRef.current);
-    }
-
-    if (point.state === "HI") {
-      const hawaiiMarker = L.marker(
-        [point.latitude, point.longitude],
-        { icon: customIcon }
-      ).addTo(hawaiiMapRef.current);
-    }
+    filteredData.forEach((point) => {
+      // Create and add markers to the pointLayer for filtered data
+      const customIcon = L.icon({
+        iconUrl:
+          "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-Free-Download-PNG.png",
+        iconSize: [20, 20],
       });
-    };
 
+      const marker = L.marker(
+        [point.latitude, point.longitude],
+        { icon: customIcon }
+      ).addTo(pointLayerRef.current);
+      
+      let popUpContent = `<div class="popup-content">`;
+  
+  if (point.url) {
+    popUpContent += `
+      <img src="${point.url}" alt="${point.first_name} ${point.last_name}" style="width: 100px; height: 110px;"><br>`;
+  }
+
+  popUpContent += `
+    <strong>${point.first_name} ${point.last_name}</strong><br>
+    Location: ${point.city}, ${point.state}<br>
+    Incident Date: ${point.incident_date}<br>
+    Gender: ${point.gender}<br>
+    Age: ${point.age}<br>
+    <div class="popup-bio">
+      Description: ${point.bio_info}
+    </div>
+  </div>`;
+
+  marker.bindPopup(popUpContent);
+
+
+  if (point.state === "AK") {
+    const alaskaMarker = L.marker(
+      [point.latitude, point.longitude],
+      { icon: customIcon }
+    ).addTo(alaskaMapRef.current);
+  }
+
+  if (point.state === "HI") {
+    const hawaiiMarker = L.marker(
+      [point.latitude, point.longitude],
+      { icon: customIcon }
+    ).addTo(hawaiiMapRef.current);
+  }
+    });
+  };
+
+
+
+  useEffect(() => {
     const initializeMap = async () => {
       try {
         const response = await fetch("http://localhost:3001/api/data");
@@ -312,7 +293,6 @@ export default function PointMap() {
           }));
         setPointData(validData);
 
-        if (!map) {
           const newMap = L.map(mapRef.current, {
             zoomControl: false,
           }).setView([40.0902, -100.7129], 5);
@@ -346,17 +326,73 @@ export default function PointMap() {
             minZoom: 3,
           });
           hawaiiBasemapLayer.addTo(hawaiiMap);
-        }
-        updateMapWithFilteredData(validData);
 
-        const timeSlider = timeSliderRef.current;
-        timeSlider.addEventListener('input', handleTimeSliderChange);
+        const initialTimelineValue = 100;
+        timeSliderRef.current.value = initialTimelineValue;
+        timeLabelRef.current.textContent = '11/12/2020';
+        pointLayerRef.current = L.featureGroup().addTo(newMap);
+        
+        validData.forEach((point) => {
+          // Create and add markers to the pointLayer for filtered data
+          const customIcon = L.icon({
+            iconUrl:
+              "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-Free-Download-PNG.png",
+            iconSize: [20, 20],
+          });
+    
+          const marker = L.marker(
+            [point.latitude, point.longitude],
+            { icon: customIcon }
+          ).addTo(pointLayerRef.current);
+          
+          let popUpContent = `<div class="popup-content">`;
       
+      if (point.url) {
+        popUpContent += `
+          <img src="${point.url}" alt="${point.first_name} ${point.last_name}" style="width: 100px; height: 110px;"><br>`;
+      }
+    
+      popUpContent += `
+        <strong>${point.first_name} ${point.last_name}</strong><br>
+        Location: ${point.city}, ${point.state}<br>
+        Incident Date: ${point.incident_date}<br>
+        Gender: ${point.gender}<br>
+        Age: ${point.age}<br>
+        <div class="popup-bio">
+          Description: ${point.bio_info}
+        </div>
+      </div>`;
+    
+      marker.bindPopup(popUpContent);
+    
+    
+      if (point.state === "AK") {
+        const alaskaMarker = L.marker(
+          [point.latitude, point.longitude],
+          { icon: customIcon }
+        ).addTo(alaskaMapRef.current);
+      }
+    
+      if (point.state === "HI") {
+        const hawaiiMarker = L.marker(
+          [point.latitude, point.longitude],
+          { icon: customIcon }
+        ).addTo(hawaiiMapRef.current);
+      }
+        });
 
       } catch (error) {
         console.error("Error initializing main map:", error);
       }
     };
+
+    initializeMap()
+  }, []);
+
+  useEffect(() => {
+
+    const timeSlider = timeSliderRef.current;
+    timeSlider.addEventListener('input', handleTimeSliderChange);
 
     if (selectedState !== "All") {
       const state = stateCoordinates[selectedState];
@@ -370,7 +406,9 @@ export default function PointMap() {
         map.setView([40.0902, -100.7129], 5);
       }
     }
-    initializeMap();
+
+    updateMapWithFilteredData(validData);
+
   }, [selectedState, selectedGender, selectedAgeRange, selectedTime]);
 
 
@@ -535,8 +573,8 @@ export default function PointMap() {
             />
       )}
       {showAbout && (
-        <div className="popup">
-          <div className="popup-content">
+        <div className="blurb">
+          <div className="blurb-content">
           <p>
               SAY THEIR NAMES is an ongoing research and mapping project, intended to identify and remember Black Americans
               killed by police violence since 1919. It is designed with an open-ended timeline to permit several successive
@@ -567,8 +605,8 @@ export default function PointMap() {
         </div>
       )}
       {showMethodology && (
-        <div className="popup">
-          <div className="popup-content">
+        <div className="blurb">
+          <div className="blurb-content">
           <p>
               SAY THEIR NAMES is an ongoing research and mapping project, intended to identify and remember Black Americans
               killed by police violence since 1919. It is designed with an open-ended timeline to permit several successive
@@ -599,8 +637,8 @@ export default function PointMap() {
         </div>
       )}
       {showMethodology && (
-        <div className="popup">
-          <div className="popup-content">
+        <div className="blurb">
+          <div className="blurb-content">
             <p>
               SAY THEIR NAMES documents incidents that likely would not have resulted in the death of white Americans given
               the same set of circumstances. Each reported case is examined against certain criteria as our focus for the

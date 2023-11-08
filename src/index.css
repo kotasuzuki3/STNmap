@@ -110,7 +110,7 @@
   top: 50px;
 }
 
-.popup {
+.blurb {
   position: absolute;
   font-family: "Metrophobic", sans-serif;
   top: 130px;
@@ -126,11 +126,11 @@
   overflow: hidden;
 }
 
-.popup:hover {
+.blurb:hover {
   overflow: auto;
 }
 
-.popup-content {
+.blurb-content {
   max-height: 150px; 
 }
 
