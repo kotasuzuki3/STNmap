@@ -196,7 +196,7 @@ export default function PointMap() {
         timeSlider.value = newValue;
         timeLabelRef.current.textContent = calculateFormattedDate(newValue);
         handleTimeSliderChange();
-      }, 200);
+      }, 350);
     }
   };
 
