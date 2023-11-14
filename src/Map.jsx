@@ -28,7 +28,7 @@ export default function Map() {
   const [selectedAgeRange, setSelectedAgeRange] = useState([0, 100]);
   const [mapInitialized, setMapInitialized] = useState(false);
 
-  const states = [...new Set(heatmapData.map((point) => point.state))];
+  const states = [...new Set(heatmapData.map((point) => point.state))].sort();
 
   const stateCoordinates = {
     AL: { lat: 32.806671, lon: -86.791130 },

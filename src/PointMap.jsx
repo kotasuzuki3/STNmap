@@ -93,7 +93,7 @@ export default function PointMap() {
     WY: { lat: 42.755966, lon: -107.302490 },
   };
 
-  const states = [...new Set(pointData.map((point) => point.state))];
+  const states = [...new Set(pointData.map((point) => point.state))].sort();
 
   const toggleDashboard = () => {
     if (showDashboard) {
@@ -132,17 +132,19 @@ export default function PointMap() {
     const timeSlider = timeSliderRef.current;
     const value = parseInt(timeSlider.value);
   
+    const validData = filterValidData(pointData);
+  
     const minDate = new Date("2010-01-01");
-    const maxDate = new Date(Math.max(...pointData.map((point) => new Date(point.incident_date))));
-    
+    const maxDate = new Date(Math.max(...validData.map((point) => new Date(point.incident_date))));
+  
     const selectedTimestamp = +minDate + (+maxDate - +minDate) * (value / 100);
   
     const selectedDate = new Date(selectedTimestamp);
   
     setSelectedTime(selectedDate);
-
+  
     const formattedDate = `${(selectedDate.getMonth() + 1).toString().padStart(2, '0')}/${selectedDate.getDate().toString().padStart(2, '0')}/${selectedDate.getFullYear()}`;
-
+  
     timeLabelRef.current.textContent = formattedDate;
   
     updateMapWithSelectedTime(selectedTimestamp);
@@ -331,6 +333,7 @@ export default function PointMap() {
         timeSliderRef.current.value = initialTimelineValue;
         timeLabelRef.current.textContent = '11/12/2020';
         pointLayerRef.current = L.featureGroup().addTo(newMap);
+  
         
         validData.forEach((point) => {
           // Create and add markers to the pointLayer for filtered data
@@ -504,6 +507,7 @@ export default function PointMap() {
                 </div>
                 <br></br>
                 <div className="filters">
+                  
         <div className="filter">
           <label htmlFor="stateFilter">Select State:  </label>
             <select
