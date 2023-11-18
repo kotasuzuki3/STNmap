@@ -22,10 +22,9 @@ export default function PointMap() {
   const timeLabelRef = useRef(null);
   const autoplayIntervalRef = useRef(null);
   const [showDashboard, setShowDashboard] = useState(true);
+  const [selectedYear, setSelectedYear] = useState("All");
   const [showDashboardContent, setShowDashboardContent] = useState(true);
   const [dashboardVisible, setDashboardVisible] = useState(true);
-
-  const [selectedTime, setSelectedTime] = useState(new Date("2010-01-01"));
 
   const filterValidData = (data) => {
     const validData = data
@@ -39,7 +38,8 @@ export default function PointMap() {
   };
 
   const validData = filterValidData(pointData);
-
+  
+  const [selectedTime, setSelectedTime] = useState(new Date(Math.max(...validData.map((point) => new Date(point.incident_date)))));
   const stateCoordinates = {
     AL: { lat: 32.806671, lon: -86.791130 },
     AK: { lat: 61.370716, lon: -152.404419 },
@@ -131,24 +131,25 @@ export default function PointMap() {
   const handleTimeSliderChange = debounce(() => {
     const timeSlider = timeSliderRef.current;
     const value = parseInt(timeSlider.value);
-  
-    const validData = filterValidData(pointData);
-  
+
     const minDate = new Date("2010-01-01");
     const maxDate = new Date(Math.max(...validData.map((point) => new Date(point.incident_date))));
-  
+
     const selectedTimestamp = +minDate + (+maxDate - +minDate) * (value / 100);
-  
     const selectedDate = new Date(selectedTimestamp);
-  
-    setSelectedTime(selectedDate);
-  
+
     const formattedDate = `${(selectedDate.getMonth() + 1).toString().padStart(2, '0')}/${selectedDate.getDate().toString().padStart(2, '0')}/${selectedDate.getFullYear()}`;
-  
+
     timeLabelRef.current.textContent = formattedDate;
-  
-    updateMapWithSelectedTime(selectedTimestamp);
+
+    if (selectedYear === "All" || validData.some((point) => new Date(point.incident_date).getFullYear() === parseInt(selectedYear))) {
+      setSelectedTime(selectedTimestamp);
+      updateMapWithSelectedTime(selectedTimestamp);
+    }
   }, 150);
+  
+
+  
 
   const updateMapWithSelectedTime = (selectedTimestamp) => {
     const filteredData = validData.filter((point) => {
@@ -223,7 +224,12 @@ export default function PointMap() {
       })
       .filter(
         (point) =>
-        new Date(point.incident_date).getTime() <= selectedTime
+          new Date(point.incident_date).getTime() <= selectedTime
+      )
+      .filter(
+        (point) =>
+          (selectedYear === "All" ||
+            new Date(point.incident_date).getFullYear() === parseInt(selectedYear))
       );
       
 
@@ -393,7 +399,6 @@ export default function PointMap() {
   }, []);
 
   useEffect(() => {
-
     const timeSlider = timeSliderRef.current;
     timeSlider.addEventListener('input', handleTimeSliderChange);
 
@@ -412,7 +417,7 @@ export default function PointMap() {
 
     updateMapWithFilteredData(validData);
 
-  }, [selectedState, selectedGender, selectedAgeRange, selectedTime]);
+  }, [selectedState, selectedGender, selectedAgeRange, selectedTime, selectedYear]);
 
 
   return (
@@ -497,17 +502,34 @@ export default function PointMap() {
                     onInput={handleTimeSliderChange}
                   />
                   <div className="time-label" ref={timeLabelRef}></div>
-                  <img
+                  {/* <img
                     src={autoplay ? "https://www.pngall.com/wp-content/uploads/5/Pause-Button-Transparent.png" : "https://cdn-icons-png.flaticon.com/512/2/2287.png"}
                     alt="Play/Pause"
                     className={`autoplay-icon ${autoplay ? "active" : ""}`}
                     onClick={handleAutoplay}
                     style={{ width: "25px", height: "25px" }}
-                  />
+                  /> */}
                 </div>
                 <br></br>
                 <div className="filters">
-                  
+                <div className="filter">
+  <label htmlFor="yearFilter">Select Year: </label>
+  <select
+    id="yearFilter"
+    value={selectedYear}
+    onChange={(e) => setSelectedYear(e.target.value)}
+  >
+    <option value="All">All</option>
+    {Array.from(new Set(validData.map((point) => new Date(point.incident_date).getFullYear())))
+      .sort()
+      .map((year) => (
+        <option key={year} value={year}>
+          {year}
+        </option>
+      ))}
+  </select>
+</div>
+
         <div className="filter">
           <label htmlFor="stateFilter">Select State:  </label>
             <select
