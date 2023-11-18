@@ -94,6 +94,36 @@ export default function PointMap() {
   };
 
   const states = [...new Set(pointData.map((point) => point.state))].sort();
+  const [pendingSelectedState, setPendingSelectedState] = useState(selectedState);
+  const [pendingSelectedGender, setPendingSelectedGender] = useState(selectedGender);
+  const [pendingSelectedAgeRange, setPendingSelectedAgeRange] = useState(selectedAgeRange.slice());
+  const [pendingSelectedYear, setPendingSelectedYear] = useState(selectedYear);
+  const [pendingSelectedTime, setPendingSelectedTime] = useState(selectedTime);
+
+  const handleApplyFilters = () => {
+    setSelectedState(pendingSelectedState);
+    setSelectedGender(pendingSelectedGender);
+    setSelectedAgeRange(pendingSelectedAgeRange);
+    setSelectedYear(pendingSelectedYear);
+    setSelectedTime(pendingSelectedTime);
+
+    updateMapWithFilteredData(validData);
+  };
+
+  const handleResetFilters = () => {
+    setSelectedState("All");
+    setPendingSelectedState("All");
+    setSelectedGender("All");
+    setPendingSelectedGender("All");
+    setSelectedAgeRange([0, 100]);
+    setPendingSelectedAgeRange([0, 100]);
+    setSelectedYear("All");
+    setPendingSelectedYear("All");
+    setSelectedTime(new Date(Math.max(...validData.map((point) => new Date(point.incident_date)))));
+    setPendingSelectedTime(new Date(Math.max(...validData.map((point) => new Date(point.incident_date)))));
+    
+    updateMapWithFilteredData(validData);
+  };
 
   const toggleDashboard = () => {
     if (showDashboard) {
@@ -557,6 +587,7 @@ export default function PointMap() {
     <option value="Female">Female</option>
   </select>
         </div>
+        <br></br>
         <div className="filter">
   <label htmlFor="ageRangeFilter">Select Age Range:</label>
   <div className="range-slider">
@@ -582,6 +613,11 @@ export default function PointMap() {
   <div>
     {selectedAgeRange[0]} - {selectedAgeRange[1]} years
   </div>
+  <br></br>
+  <div className="dashboard-section-content">
+                <button onClick={handleResetFilters}>Reset</button>
+                <button onClick={handleApplyFilters}>Apply</button>
+              </div>
         </div>
       </div>
               </div>
