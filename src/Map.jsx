@@ -618,6 +618,7 @@ export default function Map() {
     <option value="Female">Female</option>
   </select>
         </div>
+        <br></br>
         <div className="filter">
   <label htmlFor="ageRangeFilter">Select Age Range:</label>
   <div className="range-slider">

@@ -94,35 +94,68 @@ export default function PointMap() {
   };
 
   const states = [...new Set(pointData.map((point) => point.state))].sort();
-  const [pendingSelectedState, setPendingSelectedState] = useState(selectedState);
-  const [pendingSelectedGender, setPendingSelectedGender] = useState(selectedGender);
-  const [pendingSelectedAgeRange, setPendingSelectedAgeRange] = useState(selectedAgeRange.slice());
-  const [pendingSelectedYear, setPendingSelectedYear] = useState(selectedYear);
-  const [pendingSelectedTime, setPendingSelectedTime] = useState(selectedTime);
+  const [pendingFilters, setPendingFilters] = useState({
+    selectedState,
+    selectedGender,
+    selectedAgeRange: selectedAgeRange.slice(),
+    selectedYear,
+    selectedTime,
+  });
 
   const handleApplyFilters = () => {
-    setSelectedState(pendingSelectedState);
-    setSelectedGender(pendingSelectedGender);
-    setSelectedAgeRange(pendingSelectedAgeRange);
-    setSelectedYear(pendingSelectedYear);
-    setSelectedTime(pendingSelectedTime);
+    setSelectedState(pendingFilters.selectedState);
+    setSelectedGender(pendingFilters.selectedGender);
+    setSelectedAgeRange(pendingFilters.selectedAgeRange);
+    setSelectedYear(pendingFilters.selectedYear);
+    setSelectedTime(pendingFilters.selectedTime);
 
     updateMapWithFilteredData(validData);
   };
 
   const handleResetFilters = () => {
-    setSelectedState("All");
-    setPendingSelectedState("All");
-    setSelectedGender("All");
-    setPendingSelectedGender("All");
-    setSelectedAgeRange([0, 100]);
-    setPendingSelectedAgeRange([0, 100]);
-    setSelectedYear("All");
-    setPendingSelectedYear("All");
-    setSelectedTime(new Date(Math.max(...validData.map((point) => new Date(point.incident_date)))));
-    setPendingSelectedTime(new Date(Math.max(...validData.map((point) => new Date(point.incident_date)))));
-    
+    const defaultFilters = {
+      selectedState: "All",
+      selectedGender: "All",
+      selectedAgeRange: [0, 100],
+      selectedYear: "All",
+      selectedTime: new Date(Math.max(...validData.map((point) => new Date(point.incident_date)))),
+    };
+  
+    setPendingFilters(defaultFilters);
+    setSelectedState(defaultFilters.selectedState);
+    setSelectedGender(defaultFilters.selectedGender);
+    setSelectedAgeRange(defaultFilters.selectedAgeRange);
+    setSelectedYear(defaultFilters.selectedYear);
+    setSelectedTime(defaultFilters.selectedTime);
+  
     updateMapWithFilteredData(validData);
+  };
+  
+
+  const handleSelectedStateChange = (value) => {
+    setPendingFilters((prevFilters) => ({ ...prevFilters, selectedState: value }));
+  };
+
+  const handleSelectedGenderChange = (value) => {
+    setPendingFilters((prevFilters) => ({ ...prevFilters, selectedGender: value }));
+  };
+
+  const handleSelectedAgeRangeChange = (value) => {
+    setPendingFilters((prevFilters) => ({
+      ...prevFilters,
+      selectedAgeRange: [
+        value[0] !== undefined ? value[0] : prevFilters.selectedAgeRange[0],
+        value[1] !== undefined ? value[1] : prevFilters.selectedAgeRange[1],
+      ],
+    }));
+  };  
+
+  const handleSelectedYearChange = (value) => {
+    setPendingFilters((prevFilters) => ({ ...prevFilters, selectedYear: value }));
+  };
+
+  const handleSelectedTimeChange = (value) => {
+    setPendingFilters((prevFilters) => ({ ...prevFilters, selectedTime: value }));
   };
 
   const toggleDashboard = () => {
@@ -235,22 +268,22 @@ export default function PointMap() {
 
   const updateMapWithFilteredData = (validData) => {
     if (map) {
-    if (!pointLayerRef.current) {
-      pointLayerRef.current = L.featureGroup().addTo(map);
-    } else {
-      pointLayerRef.current.clearLayers();
+      if (!pointLayerRef.current) {
+        pointLayerRef.current = L.featureGroup().addTo(map);
+      } else {
+        pointLayerRef.current.clearLayers();
+      }
     }
-  }
-
+  
     const filteredData = validData
       .filter(
         (point) =>
-          (selectedState === "All" || point.state === selectedState) &&
-          (selectedGender === "All" || point.gender === selectedGender)
+          (pendingFilters.selectedState === "All" || point.state === pendingFilters.selectedState) &&
+          (pendingFilters.selectedGender === "All" || point.gender === pendingFilters.selectedGender)
       )
       .filter((point) => {
         const age = point.age;
-        return age >= selectedAgeRange[0] && age <= selectedAgeRange[1];
+        return age >= pendingFilters.selectedAgeRange[0] && age <= pendingFilters.selectedAgeRange[1];
       })
       .filter(
         (point) =>
@@ -258,11 +291,10 @@ export default function PointMap() {
       )
       .filter(
         (point) =>
-          (selectedYear === "All" ||
-            new Date(point.incident_date).getFullYear() === parseInt(selectedYear))
+          (pendingFilters.selectedYear === "All" ||
+            new Date(point.incident_date).getFullYear() === parseInt(pendingFilters.selectedYear))
       );
-      
-
+  
     filteredData.forEach((point) => {
       // Create and add markers to the pointLayer for filtered data
       const customIcon = L.icon({
@@ -270,48 +302,49 @@ export default function PointMap() {
           "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-Free-Download-PNG.png",
         iconSize: [20, 20],
       });
-
+  
       const marker = L.marker(
         [point.latitude, point.longitude],
         { icon: customIcon }
       ).addTo(pointLayerRef.current);
-      
+  
       let popUpContent = `<div class="popup-content">`;
   
-  if (point.url) {
-    popUpContent += `
-      <img src="${point.url}" alt="${point.first_name} ${point.last_name}" style="width: 100px; height: 110px;"><br>`;
-  }
-
-  popUpContent += `
-    <strong>${point.first_name} ${point.last_name}</strong><br>
-    Location: ${point.city}, ${point.state}<br>
-    Incident Date: ${point.incident_date}<br>
-    Gender: ${point.gender}<br>
-    Age: ${point.age}<br>
-    <div class="popup-bio">
-      Description: ${point.bio_info}
-    </div>
-  </div>`;
-
-  marker.bindPopup(popUpContent);
-
-
-  if (point.state === "AK") {
-    const alaskaMarker = L.marker(
-      [point.latitude, point.longitude],
-      { icon: customIcon }
-    ).addTo(alaskaMapRef.current);
-  }
-
-  if (point.state === "HI") {
-    const hawaiiMarker = L.marker(
-      [point.latitude, point.longitude],
-      { icon: customIcon }
-    ).addTo(hawaiiMapRef.current);
-  }
+      if (point.url) {
+        popUpContent += `
+          <img src="${point.url}" alt="${point.first_name} ${point.last_name}" style="width: 100px; height: 110px;"><br>`;
+      }
+  
+      popUpContent += `
+        <strong>${point.first_name} ${point.last_name}</strong><br>
+        Location: ${point.city}, ${point.state}<br>
+        Incident Date: ${point.incident_date}<br>
+        Gender: ${point.gender}<br>
+        Age: ${point.age}<br>
+        <div class="popup-bio">
+          Description: ${point.bio_info}
+        </div>
+      </div>`;
+  
+      marker.bindPopup(popUpContent);
+  
+      if (point.state === "AK") {
+        const alaskaMarker = L.marker(
+          [point.latitude, point.longitude],
+          { icon: customIcon }
+        ).addTo(alaskaMapRef.current);
+      }
+  
+      if (point.state === "HI") {
+        const hawaiiMarker = L.marker(
+          [point.latitude, point.longitude],
+          { icon: customIcon }
+        ).addTo(hawaiiMapRef.current);
+      }
     });
   };
+  
+  
 
 
 
@@ -546,8 +579,8 @@ export default function PointMap() {
   <label htmlFor="yearFilter">Select Year: </label>
   <select
     id="yearFilter"
-    value={selectedYear}
-    onChange={(e) => setSelectedYear(e.target.value)}
+    value={pendingFilters.selectedYear}
+    onChange={(e) => handleSelectedYearChange(e.target.value)}
   >
     <option value="All">All</option>
     {Array.from(new Set(validData.map((point) => new Date(point.incident_date).getFullYear())))
@@ -564,8 +597,8 @@ export default function PointMap() {
           <label htmlFor="stateFilter">Select State:  </label>
             <select
               id="stateFilter"
-              value={selectedState}
-              onChange={(e) => setSelectedState(e.target.value)}
+              value={pendingFilters.selectedState}
+              onChange={(e) =>handleSelectedStateChange(e.target.value)}
             >
               <option value="All">All</option>
               {states.map((state) => (
@@ -579,8 +612,8 @@ export default function PointMap() {
           <label htmlFor="genderFilter">Select Gender:  </label>
   <select
     id="genderFilter"
-    value={selectedGender}
-    onChange={(e) => setSelectedGender(e.target.value)}
+    value={pendingFilters.selectedGender}
+    onChange={(e) => handleSelectedGenderChange(e.target.value)}
   >
     <option value="All">All</option>
     <option value="Male">Male</option>
@@ -595,23 +628,23 @@ export default function PointMap() {
       type="range"
       min={0}
       max={100}
-      value={selectedAgeRange[0]}
+      value={pendingFilters.selectedAgeRange[0]}
       onChange={(e) =>
-        setSelectedAgeRange([parseInt(e.target.value), selectedAgeRange[1]])
+        handleSelectedAgeRangeChange([parseInt(e.target.value), selectedAgeRange[1]])
       }
     />
     <input
       type="range"
       min={0}
       max={100}
-      value={selectedAgeRange[1]}
+      value={pendingFilters.selectedAgeRange[1]}
       onChange={(e) =>
-        setSelectedAgeRange([selectedAgeRange[0], parseInt(e.target.value)])
+        handleSelectedAgeRangeChange([selectedAgeRange[0], parseInt(e.target.value)])
       }
     />
   </div>
   <div>
-    {selectedAgeRange[0]} - {selectedAgeRange[1]} years
+    {pendingFilters.selectedAgeRange[0]} - {pendingFilters.selectedAgeRange[1]} years
   </div>
   <br></br>
   <div className="dashboard-section-content">
