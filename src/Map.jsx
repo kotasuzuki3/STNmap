@@ -29,6 +29,9 @@ export default function Map() {
   const [mapInitialized, setMapInitialized] = useState(false);
 
   const states = [...new Set(heatmapData.map((point) => point.state))].sort();
+  const [pendingState, setPendingState] = useState("All");
+  const [pendingGender, setPendingGender] = useState("All");
+  const [pendingAgeRange, setPendingAgeRange] = useState([0, 100]);
 
   const stateCoordinates = {
     AL: { lat: 32.806671, lon: -86.791130 },
@@ -83,6 +86,22 @@ export default function Map() {
     WY: { lat: 42.755966, lon: -107.302490 },
   };
 
+  const applyFilters = () => {
+    setSelectedState(pendingState);
+    setSelectedGender(pendingGender);
+    setSelectedAgeRange(pendingAgeRange);
+    updateHeatmap();
+  };
+
+  const resetFilters = () => {
+    setPendingState("All");
+    setPendingGender("All");
+    setPendingAgeRange([0, 100]);
+    setSelectedState("All"); 
+    setSelectedGender("All"); 
+    setSelectedAgeRange([0, 100]); 
+    updateHeatmap(); 
+  };
 
   const toggleSubmit = () => {
     window.open("https://form.jotform.com/222938481763163", "_blank");
@@ -595,8 +614,8 @@ export default function Map() {
           <label htmlFor="stateFilter">Select State:  </label>
             <select
               id="stateFilter"
-              value={selectedState}
-              onChange={(e) => setSelectedState(e.target.value)}
+              value={pendingState}
+              onChange={(e) => setPendingState(e.target.value)}
             >
               <option value="All">All</option>
               {states.map((state) => (
@@ -610,8 +629,8 @@ export default function Map() {
           <label htmlFor="genderFilter">Select Gender:  </label>
   <select
     id="genderFilter"
-    value={selectedGender}
-    onChange={(e) => setSelectedGender(e.target.value)}
+    value={pendingGender}
+    onChange={(e) => setPendingGender(e.target.value)}
   >
     <option value="All">All</option>
     <option value="Male">Male</option>
@@ -626,24 +645,29 @@ export default function Map() {
       type="range"
       min={0}
       max={100}
-      value={selectedAgeRange[0]}
+      value={pendingAgeRange[0]}
       onChange={(e) =>
-        setSelectedAgeRange([parseInt(e.target.value), selectedAgeRange[1]])
+        setPendingAgeRange([parseInt(e.target.value), pendingAgeRange[1]])
       }
     />
     <input
       type="range"
       min={0}
       max={100}
-      value={selectedAgeRange[1]}
+      value={pendingAgeRange[1]}
       onChange={(e) =>
-        setSelectedAgeRange([selectedAgeRange[0], parseInt(e.target.value)])
+        setPendingAgeRange([pendingAgeRange[0], parseInt(e.target.value)])
       }
     />
   </div>
   <div>
-    {selectedAgeRange[0]} - {selectedAgeRange[1]} years
+    {pendingAgeRange[0]} - {pendingAgeRange[1]} years
   </div>
+  <br></br>
+  <div className="apply-reset-buttons">
+          <button onClick={resetFilters}>Reset</button>
+          <button onClick={applyFilters}>Apply</button>
+        </div>
         </div>
       </div>
               </div>

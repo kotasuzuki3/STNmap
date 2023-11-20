@@ -154,10 +154,6 @@ export default function PointMap() {
     setPendingFilters((prevFilters) => ({ ...prevFilters, selectedYear: value }));
   };
 
-  const handleSelectedTimeChange = (value) => {
-    setPendingFilters((prevFilters) => ({ ...prevFilters, selectedTime: value }));
-  };
-
   const toggleDashboard = () => {
     if (showDashboard) {
       setDashboardVisible(false);
