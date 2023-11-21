@@ -643,7 +643,7 @@ export default function PointMap() {
     {pendingFilters.selectedAgeRange[0]} - {pendingFilters.selectedAgeRange[1]} years
   </div>
   <br></br>
-  <div className="dashboard-section-content">
+  <div className="apply-reset-buttons">
                 <button onClick={handleResetFilters}>Reset</button>
                 <button onClick={handleApplyFilters}>Apply</button>
               </div>
