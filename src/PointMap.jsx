@@ -626,7 +626,7 @@ export default function PointMap() {
       max={100}
       value={pendingFilters.selectedAgeRange[0]}
       onChange={(e) =>
-        handleSelectedAgeRangeChange([parseInt(e.target.value), selectedAgeRange[1]])
+        handleSelectedAgeRangeChange([parseInt(e.target.value), pendingFilters.selectedAgeRange[1]])
       }
     />
     <input
@@ -635,7 +635,7 @@ export default function PointMap() {
       max={100}
       value={pendingFilters.selectedAgeRange[1]}
       onChange={(e) =>
-        handleSelectedAgeRangeChange([selectedAgeRange[0], parseInt(e.target.value)])
+        handleSelectedAgeRangeChange([pendingFilters.selectedAgeRange[0], parseInt(e.target.value)])
       }
     />
   </div>
