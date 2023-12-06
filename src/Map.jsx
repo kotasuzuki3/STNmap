@@ -681,7 +681,6 @@ export default function Map() {
               alt="Reopen"
               className="reopen-button"
               onClick={toggleDashboard}
-              style={{ width: "25px", height: "25px", marginLeft: "-30px", marginTop: "0px" }}
             />
       )}
       {showAbout && (

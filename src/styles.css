@@ -7,23 +7,25 @@
     margin: 0px;
   }
   
-/* Add some basic styles for the toggle button */
 .toggle-button {
-  position: fixed;
-  top: 90px; /* Adjust the value as needed to create space between the button and the menu */
-  left: 1300px; /* Adjust the value as needed to position the button horizontally */
+  position: absolute;
+  font-family: "Metrophobic", sans-serif;
+  font-size: 16px;
+  top: 82px; 
+  left: 15px; 
   padding: 10px 15px;
-  background-color: #4caf50;
+  background-color: #333;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  z-index: 9999; /* Make sure the button appears above other elements */
+  z-index: 9998;
+  width: 280px; 
 }
 
-/* Style the button differently when active (for the selected map type) */
+
 .toggle-button.active {
-  background-color: #28A745;
+  background-color: #333;
 }
 
 

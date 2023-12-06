@@ -31,7 +31,7 @@
 
 .dashboard {
   position: absolute;
-  top: 90px;
+  top: 130px;
   left: 10px;
   width: 250px; 
   height: 45vh;
@@ -77,8 +77,8 @@
 }
 
 .dashboard-toggle img {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
 }
 
 .dashboard-header {
@@ -113,7 +113,7 @@
 .blurb {
   position: absolute;
   font-family: "Metrophobic", sans-serif;
-  top: 130px;
+  top: 100px;
   right: 20px;
   width: 200px;
   height: 350px;
@@ -147,21 +147,17 @@
   cursor: pointer;
 }
 
-.dashboard-reopen img {
-  width: 24px;
-  height: 24px;
-}
-
 .reopen-button {
-  position: absolute;
-  top: 10px;
+  transition: opacity 0.3s ease;
+  z-index: 999;
+  top: 130px;
   left: 45px;
-  z-index: 100;
+  position: absolute;
   padding: 5px;
-  background-color: #fff;
-  border: 1px solid #ccc;
+  background-color: #333;
+  color: white;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: 20px;
   cursor: pointer;
 }
 
@@ -170,22 +166,9 @@
   transition: left 0.3s ease; 
 }
 
-.dashboard.collapsed .map {
-  opacity: 1;
-  transition: opacity 0.3s ease; 
-}
-
 .dashboard.collapsed ~ .logo-container {
   left: 10px;
   transition: left 0.3s ease;
-}
-
-
-.reopen-button {
-  transition: opacity 0.3s ease;
-  z-index: 999;
-  top: 100px;
-  left: 50px;
 }
 
 .reopen-button.visible {
