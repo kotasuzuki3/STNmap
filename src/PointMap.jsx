@@ -103,6 +103,7 @@ export default function PointMap() {
   });
 
   const handleApplyFilters = () => {
+
     setSelectedState(pendingFilters.selectedState);
     setSelectedGender(pendingFilters.selectedGender);
     setSelectedAgeRange(pendingFilters.selectedAgeRange);
@@ -342,8 +343,6 @@ export default function PointMap() {
   
   
 
-
-
   useEffect(() => {
     const initializeMap = async () => {
       try {
@@ -360,7 +359,7 @@ export default function PointMap() {
           }));
         setPointData(validData);
 
-          const newMap = L.map(mapRef.current, {
+          const map = L.map(mapRef.current, {
             zoomControl: false,
           }).setView([40.0902, -100.7129], 5);
 
@@ -368,9 +367,18 @@ export default function PointMap() {
             attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
             minZoom: 3,
           });
-          basemapLayer.addTo(newMap);
+          basemapLayer.addTo(map);
 
-          setMap(newMap);
+          setMap(map);
+
+          const defaultFilters = {
+            selectedState: "All",
+            selectedGender: "All",
+            selectedAgeRange: [0, 100],
+            selectedYear: "All",
+            selectedTime: new Date(Math.max(...validData.map((point) => new Date(point.incident_date)))),
+          };
+          setPendingFilters(defaultFilters)
 
           // Initialize the Alaska Map
           const alaskaMap = L.map("alaska-map", {
@@ -393,11 +401,8 @@ export default function PointMap() {
             minZoom: 3,
           });
           hawaiiBasemapLayer.addTo(hawaiiMap);
-
-        const initialTimelineValue = 100;
-        timeSliderRef.current.value = initialTimelineValue;
-        timeLabelRef.current.textContent = '11/12/2020';
-        pointLayerRef.current = L.featureGroup().addTo(newMap);
+          
+        pointLayerRef.current = L.featureGroup().addTo(map);
   
         
         validData.forEach((point) => {
@@ -452,14 +457,14 @@ export default function PointMap() {
       } catch (error) {
         console.error("Error initializing main map:", error);
       }
+    
     };
-
     initializeMap()
   }, []);
 
   useEffect(() => {
     const timeSlider = timeSliderRef.current;
-    timeSlider.addEventListener('input', handleTimeSliderChange);
+    // timeSlider.addEventListener('input', handleTimeSliderChange);
 
     if (selectedState !== "All") {
       const state = stateCoordinates[selectedState];
@@ -548,7 +553,7 @@ export default function PointMap() {
                 </div>
               </div>
               <div className="dashboard-section">
-                <div className="dashboard-section-title">Time Slider</div>
+                {/* <div className="dashboard-section-title">Time Slider</div>
                 <div className="dashboard-section-content">
                   <input
                     type="range"
@@ -568,7 +573,7 @@ export default function PointMap() {
                     onClick={handleAutoplay}
                     style={{ width: "25px", height: "25px" }}
                   /> */}
-                </div>
+                {/* </div>  */}
                 <br></br>
                 <div className="filters">
                 <div className="filter">

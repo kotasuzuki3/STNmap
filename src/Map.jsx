@@ -155,64 +155,49 @@ export default function Map() {
     const endTime = maxDate.getTime();
     const step = (endTime - minDate.getTime()) / 100;
     const intervalDuration = 250;
-
+  
     let currentTime = minDate.getTime() + ((maxDate.getTime() - minDate.getTime()) * timelineValue) / 100;
     let currentPercentage = timelineValue;
     clearInterval(autoplayIntervalRef.current);
-
+  
     autoplayIntervalRef.current = setInterval(() => {
       currentTime += step;
       currentPercentage = ((currentTime - minDate.getTime()) / (maxDate.getTime() - minDate.getTime())) * 100;
-
+  
       if (currentTime >= endTime) {
         currentTime = minDate.getTime();
         currentPercentage = 0;
         clearInterval(autoplayIntervalRef.current);
         setAutoplay(false);
       }
-
+  
       if (timeLabelRef.current) {
         const currentDateTime = new Date(currentTime);
         const formattedDate = currentDateTime.toLocaleDateString();
         timeLabelRef.current.textContent = formattedDate;
       }
-
+  
       timeSliderRef.current.value = currentPercentage;
-
-      const filteredData = heatmapData.filter((dataPoint) => new Date(dataPoint.incident_date) <= currentTime);
-
+  
+      const filteredData = heatmapData.filter(
+        (dataPoint) =>
+          new Date(dataPoint.incident_date) <= currentTime &&
+          (selectedState === "All" || dataPoint.state === selectedState) &&
+          (selectedGender === "All" || dataPoint.gender === selectedGender) &&
+          (dataPoint.age >= selectedAgeRange[0] && dataPoint.age <= selectedAgeRange[1])
+      );
+  
       const heatPoints = filteredData.map((point) => [
         parseFloat(point.latitude),
         parseFloat(point.longitude),
         point.intensity,
       ]);
-
+  
       heatLayerRef.current.setLatLngs(heatPoints);
-
-      // Update Alaska map's heat layer
-      const alaskaFilteredData = heatmapData.filter(
-        (dataPoint) => new Date(dataPoint.incident_date) <= currentTime
-      );
-      const alaskaHeatPoints = alaskaFilteredData.map((point) => [
-        parseFloat(point.latitude),
-        parseFloat(point.longitude),
-        point.intensity,
-      ]);
-      alaskaHeatLayerRef.current.setLatLngs(alaskaHeatPoints);
-
-      // Update Hawaii map's heat layer
-      const hawaiiFilteredData = heatmapData.filter(
-        (dataPoint) => new Date(dataPoint.incident_date) <= currentTime
-      );
-      const hawaiiHeatPoints = hawaiiFilteredData.map((point) => [
-        parseFloat(point.latitude),
-        parseFloat(point.longitude),
-        point.intensity,
-      ]);
-      hawaiiHeatLayerRef.current.setLatLngs(hawaiiHeatPoints);
-
+      // Update Alaska map's heat layer, Hawaii map's heat layer, etc.
     }, intervalDuration);
   };
+  
 
   const removeHeatLayers = () => {
     if (heatLayerRef.current) {
@@ -681,6 +666,7 @@ export default function Map() {
               alt="Reopen"
               className="reopen-button"
               onClick={toggleDashboard}
+              style={{ width: "25px", height: "25px", marginLeft: "-30px", marginTop: "0px" }}
             />
       )}
       {showAbout && (
