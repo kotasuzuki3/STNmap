@@ -87,19 +87,31 @@ export default function Map() {
   };
 
   const applyFilters = () => {
+    let map = mapRef.current
+
     setSelectedState(pendingState);
+
+    if (pendingState !== 'All' && pendingState in stateCoordinates) {
+      map.setView([stateCoordinates[pendingState].lat, stateCoordinates[pendingState].lon], 6);
+    } else {
+      map.setView([40.0902, -100.7129], 5);
+    }
+
     setSelectedGender(pendingGender);
     setSelectedAgeRange(pendingAgeRange);
     updateHeatmap();
   };
 
   const resetFilters = () => {
+    let map = mapRef.current
     setPendingState("All");
+    setSelectedState("All"); 
+    map.setView([40.0902, -100.7129], 5);
     setPendingGender("All");
     setPendingAgeRange([0, 100]);
-    setSelectedState("All"); 
     setSelectedGender("All"); 
     setSelectedAgeRange([0, 100]); 
+
     updateHeatmap(); 
   };
 
@@ -165,8 +177,6 @@ export default function Map() {
       currentPercentage = ((currentTime - minDate.getTime()) / (maxDate.getTime() - minDate.getTime())) * 100;
   
       if (currentTime >= endTime) {
-        currentTime = minDate.getTime();
-        currentPercentage = 0;
         clearInterval(autoplayIntervalRef.current);
         setAutoplay(false);
       }
@@ -178,23 +188,30 @@ export default function Map() {
       }
   
       timeSliderRef.current.value = currentPercentage;
+
+      try {
+        const filteredData = heatmapData.filter(
+          (dataPoint) =>
+            new Date(dataPoint.incident_date) <= currentTime &&
+            (selectedState === "All" || dataPoint.state === selectedState) &&
+            (selectedGender === "All" || dataPoint.gender === selectedGender) &&
+            (dataPoint.age >= selectedAgeRange[0] && dataPoint.age <= selectedAgeRange[1])
+        );
   
-      const filteredData = heatmapData.filter(
-        (dataPoint) =>
-          new Date(dataPoint.incident_date) <= currentTime &&
-          (selectedState === "All" || dataPoint.state === selectedState) &&
-          (selectedGender === "All" || dataPoint.gender === selectedGender) &&
-          (dataPoint.age >= selectedAgeRange[0] && dataPoint.age <= selectedAgeRange[1])
-      );
+        const heatPoints = filteredData.map((point) => [
+          parseFloat(point.latitude),
+          parseFloat(point.longitude),
+          point.intensity,
+        ]);
   
-      const heatPoints = filteredData.map((point) => [
-        parseFloat(point.latitude),
-        parseFloat(point.longitude),
-        point.intensity,
-      ]);
-  
-      heatLayerRef.current.setLatLngs(heatPoints);
-      // Update Alaska map's heat layer, Hawaii map's heat layer, etc.
+        if (heatLayerRef.current) {
+          heatLayerRef.current.setLatLngs(heatPoints);
+        }
+      } catch (error) {
+        console.error("Error setting map properties:", error);
+        clearInterval(autoplayIntervalRef.current);
+        setAutoplay(false);
+      }
     }, intervalDuration);
   };
   
@@ -228,7 +245,6 @@ export default function Map() {
   };
 
   const updateHeatmap = async () => {
-    let map = mapRef.current
     try {
       const response = await fetch("http://localhost:3001/api/data");
       const jsonData = await response.json();
@@ -298,9 +314,9 @@ export default function Map() {
 
       // Filter data for the Alaska map
       const alaskaFilteredData = validData.filter(
-        (dataPoint) => new Date(dataPoint.incident_date) <= currentTime && /* Filter for Alaska data */
-          dataPoint.latitude >= 54.5 && dataPoint.latitude <= 71.5 && // Latitude range for Alaska
-          dataPoint.longitude >= -160 && dataPoint.longitude <= -140 // Longitude range for Alaska
+        (dataPoint) => new Date(dataPoint.incident_date) <= currentTime && 
+          dataPoint.latitude >= 54.5 && dataPoint.latitude <= 71.5 && 
+          dataPoint.longitude >= -160 && dataPoint.longitude <= -140 
       );
 
       const alaskaHeatPoints = alaskaFilteredData.map((point) => [
@@ -316,8 +332,8 @@ export default function Map() {
       const hawaiiFilteredData = validData.filter(
         (dataPoint) =>
           new Date(dataPoint.incident_date) <= currentTime &&
-          ((dataPoint.latitude >= 18.5 && dataPoint.latitude <= 20.5) || // Latitude range for Hawaii
-          (dataPoint.longitude >= -161 && dataPoint.longitude <= -154)) // Longitude range for Hawaii
+          ((dataPoint.latitude >= 18.5 && dataPoint.latitude <= 20.5) || 
+          (dataPoint.longitude >= -161 && dataPoint.longitude <= -154)) 
       );
 
       const hawaiiHeatPoints = hawaiiFilteredData.map((point) => [
@@ -330,12 +346,6 @@ export default function Map() {
 
       if (autoplay && showDashboard) {
         startAutoplay();
-      }
-
-      if (selectedState !== 'All' && selectedState in stateCoordinates) {
-        map.setView([stateCoordinates[selectedState].lat, stateCoordinates[selectedState].lon], 6);
-      } else {
-        map.setView([40.0902, -100.7129], 5);
       }
 
       
@@ -374,9 +384,8 @@ export default function Map() {
         // Initialize the Alaska Map
         alaskaMap = L.map("alaska-map", {
           zoomControl: false,
-        }).setView([64.2008, -149.4937], 2); // Coordinates for Alaska
+        }).setView([64.2008, -149.4937], 2); 
 
-        // Add the same basemap style to the Alaska map
         const alaskaBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
           minZoom: 3,
         });
@@ -446,8 +455,6 @@ export default function Map() {
         hawaiiHeatLayer.addTo(hawaiiMap);
         hawaiiHeatLayerRef.current = hawaiiHeatLayer;
 
-
-        timeSliderRef.current.addEventListener("input", updateHeatmap);
         updateHeatmap();
         setMapInitialized(true);
       } catch (error) {
