@@ -203,9 +203,36 @@ export default function Map() {
           parseFloat(point.longitude),
           point.intensity,
         ]);
+
+        const alaskaFilteredData = filteredData.filter(
+          (dataPoint) => new Date(dataPoint.incident_date) <= currentTime && 
+            dataPoint.latitude >= 54.5 && dataPoint.latitude <= 71.5 && 
+            dataPoint.longitude >= -160 && dataPoint.longitude <= -140 
+        );
+
+        const alaskaHeatPoints = alaskaFilteredData.map((point) => [
+          parseFloat(point.latitude),
+          parseFloat(point.longitude),
+          point.intensity,
+        ]);
+
+        const hawaiiFilteredData = filteredData.filter(
+          (dataPoint) =>
+            new Date(dataPoint.incident_date) <= currentTime &&
+            ((dataPoint.latitude >= 18.5 && dataPoint.latitude <= 20.5) || 
+            (dataPoint.longitude >= -161 && dataPoint.longitude <= -154)) 
+        );
+  
+        const hawaiiHeatPoints = hawaiiFilteredData.map((point) => [
+          parseFloat(point.latitude),
+          parseFloat(point.longitude),
+          point.intensity,
+        ]);
   
         if (heatLayerRef.current) {
           heatLayerRef.current.setLatLngs(heatPoints);
+          alaskaHeatLayerRef.current.setLatLngs(alaskaHeatPoints); 
+          hawaiiHeatLayerRef.current.setLatLngs(hawaiiHeatPoints);
         }
       } catch (error) {
         console.error("Error setting map properties:", error);
