@@ -293,7 +293,6 @@ export default function PointMap() {
       );
   
     filteredData.forEach((point) => {
-      // Create and add markers to the pointLayer for filtered data
       const customIcon = L.icon({
         iconUrl:
           "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-Free-Download-PNG.png",
@@ -304,6 +303,16 @@ export default function PointMap() {
         [point.latitude, point.longitude],
         { icon: customIcon }
       ).addTo(pointLayerRef.current);
+
+      L.marker(
+        [point.latitude, point.longitude],
+        { icon: customIcon }
+      ).addTo(alaskaMapRef.current);
+    
+      L.marker(
+        [point.latitude, point.longitude],
+        { icon: customIcon }
+      ).addTo(hawaiiMapRef.current);
   
       let popUpContent = `<div class="popup-content">`;
   
@@ -324,20 +333,6 @@ export default function PointMap() {
       </div>`;
   
       marker.bindPopup(popUpContent);
-  
-      if (point.state === "AK") {
-        const alaskaMarker = L.marker(
-          [point.latitude, point.longitude],
-          { icon: customIcon }
-        ).addTo(alaskaMapRef.current);
-      }
-  
-      if (point.state === "HI") {
-        const hawaiiMarker = L.marker(
-          [point.latitude, point.longitude],
-          { icon: customIcon }
-        ).addTo(hawaiiMapRef.current);
-      }
     });
   };
   
@@ -378,7 +373,6 @@ export default function PointMap() {
             selectedYear: "All",
             selectedTime: new Date(Math.max(...validData.map((point) => new Date(point.incident_date)))),
           };
-          setPendingFilters(defaultFilters)
 
           // Initialize the Alaska Map
           const alaskaMap = L.map("alaska-map", {
@@ -403,10 +397,10 @@ export default function PointMap() {
           hawaiiBasemapLayer.addTo(hawaiiMap);
           
         pointLayerRef.current = L.featureGroup().addTo(map);
-  
-        
+
+        setPendingFilters(defaultFilters)
+
         validData.forEach((point) => {
-          // Create and add markers to the pointLayer for filtered data
           const customIcon = L.icon({
             iconUrl:
               "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-Free-Download-PNG.png",
