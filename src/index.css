@@ -1,6 +1,6 @@
-/* ...Necessary Map code... */
 .map-container {
-  position: relative;
+  position: fixed;
+  display: absolute;
   width: 100vw;
   height: 100vh;
 }
@@ -13,7 +13,6 @@
   height: 100%;
 }
 
-/* ...Necessary Logo code... */
 .logo-container {
   position: absolute;
   top: 10px;
@@ -199,21 +198,23 @@
 .menu {
   background-color: #333;
   color: white;
-  padding: 25px;
+  margin-right: 0px;
+  padding: 25px 8px;
   display: absolute; 
   align-items: center;
-  justify-content: space-between; 
-  width: 160%;
-  position: absolute;
+  width: 100%;
+  position: fixed;
   top: 0;
   left: 0;
   z-index: 1005;
 }
 
 .menu ul {
+  justify-content: flex-end; 
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
 }
 
 .menu li {
@@ -239,11 +240,10 @@
 }
 
 .menu-item-list li {
-  display: absolute; 
+  display: flex; 
   align-items: center; 
   justify-content: space-between; 
   font-family: "Metrophobic", sans-serif;
-  margin-right: 20px; 
 }
 
 .dashboard-section-title {
@@ -268,7 +268,7 @@
 }
 
 .pointmap-container {
-  position: relative;
+  position: absolute;
   width: 100vw;
   height: 100vh;
 }
