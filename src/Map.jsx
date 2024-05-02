@@ -86,6 +86,141 @@ export default function Map() {
     WY: { lat: 42.755966, lon: -107.302490 },
   };
 
+  useEffect(() => {
+    let map;
+    let heatLayer; 
+    let alaskaMap;
+    let alaskaHeatLayer;
+    let hawaiiMap;
+    let hawaiiHeatLayer;
+
+
+    const initializeMap = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/api/data");
+        const jsonData = await response.json();
+        const validData = filterValidData(jsonData);
+      
+        setHeatmapData(validData);
+
+        map = L.map(mapRef.current, {
+          zoomControl: false,
+        }).setView([40.0902, -100.7129], 5);
+
+        const basemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+          attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+          minZoom: 3,
+        });
+        basemapLayer.addTo(map)
+
+        // Initialize the Alaska Map
+        alaskaMap = L.map("alaska-map", {
+          zoomControl: false,
+        }).setView([64.2008, -149.4937], 2); 
+
+        const alaskaBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+          minZoom: 3,
+        });
+        alaskaBasemapLayer.addTo(alaskaMap);
+        setAlaskaMap(alaskaMap);
+
+        // Initialize Hawaii map
+        hawaiiMap = L.map("hawaii-map", {
+          zoomControl: false,
+        }).setView([21.3114, -157.7964], 5); 
+
+        const hawaiiBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+          minZoom: 3,
+        });
+        hawaiiBasemapLayer.addTo(hawaiiMap);
+        setHawaiiMap(hawaiiMap);
+
+        const minDate = new Date("2010-01-01");
+        const maxDate = new Date(Math.max(...validData.map((point) => new Date(point.incident_date))));
+        setDateRange({ minDate, maxDate });
+
+        const initialTimelineValue = 100;
+        timeSliderRef.current.value = initialTimelineValue;
+
+        heatLayer = L.heatLayer([], {
+          radius: 10,
+          blur: 3,
+          gradient: {
+            0.03: "blue",
+            0.06: "yellow",
+            0.09: "orange",
+            0.1: "pink",
+            0.15: "red",
+          },
+        });
+        heatLayer.addTo(map);
+
+        mapRef.current = map;
+        heatLayerRef.current = heatLayer;
+
+        // Create the heatmap for the Alaska map
+        alaskaHeatLayer = L.heatLayer([], { 
+          radius: 10,
+          blur: 3,
+          gradient: {
+            0.03: "blue",
+            0.06: "yellow",
+            0.09: "orange",
+            0.1: "pink",
+            0.15: "red",
+          },
+        });
+        alaskaHeatLayer.addTo(alaskaMap);
+        alaskaHeatLayerRef.current = alaskaHeatLayer;
+
+        hawaiiHeatLayer = L.heatLayer([], {
+          radius: 10,
+          blur: 3,
+          gradient: {
+            0.03: "blue",
+            0.06: "yellow",
+            0.09: "orange",
+            0.1: "pink",
+            0.15: "red",
+          },
+        });
+        hawaiiHeatLayer.addTo(hawaiiMap);
+        hawaiiHeatLayerRef.current = hawaiiHeatLayer;
+
+        updateHeatmap();
+        setMapInitialized(true);
+      } catch (error) {
+        console.error("Error initializing map:", error);
+      }
+    };
+
+    initializeMap();
+
+    // return () => {
+    //   removeHeatLayers();
+    //   const timeSlider = timeSliderRef.current;
+    //   if (timeSlider) {
+    //     timeSlider.addEventListener("input", updateHeatmap);
+    //   }
+
+    //   if (map && heatLayer) {
+    //     map.remove();
+    //     heatLayerRef.current = null;
+    //   }
+
+    //   if (alaskaMap && alaskaHeatLayer) {
+    //     alaskaMap.remove();
+    //     alaskaHeatLayerRef.current = null;
+    //   }
+
+    //   if (hawaiiMap && hawaiiHeatLayer) {
+    //     hawaiiMap.remove();
+    //     hawaiiHeatLayerRef.current = null;
+    //   }
+    // };
+
+  }, []);
+
   const applyFilters = () => {
     let map = mapRef.current
 
@@ -143,7 +278,6 @@ export default function Map() {
     if (showDashboard) {
       setDashboardVisible(false);
       clearInterval(autoplayIntervalRef.current); 
-      setAutoplay(false); 
     } else {
       setDashboardVisible(true);
     }
@@ -154,7 +288,7 @@ export default function Map() {
   const handleAutoplay = () => {
     if (autoplay) {
       clearInterval(autoplayIntervalRef.current);
-    } else if (showDashboard) {
+    } else {
       startAutoplay();
     }
     setAutoplay(!autoplay);
@@ -188,7 +322,7 @@ export default function Map() {
       }
   
       timeSliderRef.current.value = currentPercentage;
-
+  
       try {
         const filteredData = heatmapData.filter(
           (dataPoint) =>
@@ -203,24 +337,27 @@ export default function Map() {
           parseFloat(point.longitude),
           point.intensity,
         ]);
-
+  
         const alaskaFilteredData = filteredData.filter(
-          (dataPoint) => new Date(dataPoint.incident_date) <= currentTime && 
-            dataPoint.latitude >= 54.5 && dataPoint.latitude <= 71.5 && 
-            dataPoint.longitude >= -160 && dataPoint.longitude <= -140 
+          (dataPoint) =>
+            new Date(dataPoint.incident_date) <= currentTime &&
+            dataPoint.latitude >= 54.5 &&
+            dataPoint.latitude <= 71.5 &&
+            dataPoint.longitude >= -160 &&
+            dataPoint.longitude <= -140
         );
-
+  
         const alaskaHeatPoints = alaskaFilteredData.map((point) => [
           parseFloat(point.latitude),
           parseFloat(point.longitude),
           point.intensity,
         ]);
-
+  
         const hawaiiFilteredData = filteredData.filter(
           (dataPoint) =>
             new Date(dataPoint.incident_date) <= currentTime &&
-            ((dataPoint.latitude >= 18.5 && dataPoint.latitude <= 20.5) || 
-            (dataPoint.longitude >= -161 && dataPoint.longitude <= -154)) 
+            ((dataPoint.latitude >= 18.5 && dataPoint.latitude <= 20.5) ||
+              (dataPoint.longitude >= -161 && dataPoint.longitude <= -154))
         );
   
         const hawaiiHeatPoints = hawaiiFilteredData.map((point) => [
@@ -229,10 +366,14 @@ export default function Map() {
           point.intensity,
         ]);
   
-        if (heatLayerRef.current) {
+        if (heatLayerRef.current && alaskaHeatLayerRef.current && hawaiiHeatLayerRef.current) {
           heatLayerRef.current.setLatLngs(heatPoints);
-          alaskaHeatLayerRef.current.setLatLngs(alaskaHeatPoints); 
+          alaskaHeatLayerRef.current.setLatLngs(alaskaHeatPoints);
           hawaiiHeatLayerRef.current.setLatLngs(hawaiiHeatPoints);
+        } else {
+          console.error("One or more map layers are not initialized correctly.");
+          clearInterval(autoplayIntervalRef.current);
+          setAutoplay(false);
         }
       } catch (error) {
         console.error("Error setting map properties:", error);
@@ -241,7 +382,6 @@ export default function Map() {
       }
     }, intervalDuration);
   };
-  
 
   const removeHeatLayers = () => {
     if (heatLayerRef.current) {
@@ -380,141 +520,6 @@ export default function Map() {
       console.error("Error updating data:", error);
     }
   };
-
-  useEffect(() => {
-    let map;
-    let heatLayer; 
-    let alaskaMap;
-    let alaskaHeatLayer;
-    let hawaiiMap;
-    let hawaiiHeatLayer;
-
-
-    const initializeMap = async () => {
-      try {
-        const response = await fetch("http://localhost:3001/api/data");
-        const jsonData = await response.json();
-        const validData = filterValidData(jsonData);
-      
-        setHeatmapData(validData);
-
-        map = L.map(mapRef.current, {
-          zoomControl: false,
-        }).setView([40.0902, -100.7129], 5);
-
-        const basemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-          attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
-          minZoom: 3,
-        });
-        basemapLayer.addTo(map)
-
-        // Initialize the Alaska Map
-        alaskaMap = L.map("alaska-map", {
-          zoomControl: false,
-        }).setView([64.2008, -149.4937], 2); 
-
-        const alaskaBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-          minZoom: 3,
-        });
-        alaskaBasemapLayer.addTo(alaskaMap);
-        setAlaskaMap(alaskaMap);
-
-        // Initialize Hawaii map
-        hawaiiMap = L.map("hawaii-map", {
-          zoomControl: false,
-        }).setView([21.3114, -157.7964], 5); 
-
-        const hawaiiBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-          minZoom: 3,
-        });
-        hawaiiBasemapLayer.addTo(hawaiiMap);
-        setHawaiiMap(hawaiiMap);
-
-        const minDate = new Date("2010-01-01");
-        const maxDate = new Date(Math.max(...validData.map((point) => new Date(point.incident_date))));
-        setDateRange({ minDate, maxDate });
-
-        const initialTimelineValue = 100;
-        timeSliderRef.current.value = initialTimelineValue;
-
-        heatLayer = L.heatLayer([], {
-          radius: 10,
-          blur: 3,
-          gradient: {
-            0.03: "blue",
-            0.06: "yellow",
-            0.09: "orange",
-            0.1: "pink",
-            0.15: "red",
-          },
-        });
-        heatLayer.addTo(map);
-
-        mapRef.current = map;
-        heatLayerRef.current = heatLayer;
-
-        // Create the heatmap for the Alaska map
-        alaskaHeatLayer = L.heatLayer([], { 
-          radius: 10,
-          blur: 3,
-          gradient: {
-            0.03: "blue",
-            0.06: "yellow",
-            0.09: "orange",
-            0.1: "pink",
-            0.15: "red",
-          },
-        });
-        alaskaHeatLayer.addTo(alaskaMap);
-        alaskaHeatLayerRef.current = alaskaHeatLayer;
-
-        hawaiiHeatLayer = L.heatLayer([], {
-          radius: 10,
-          blur: 3,
-          gradient: {
-            0.03: "blue",
-            0.06: "yellow",
-            0.09: "orange",
-            0.1: "pink",
-            0.15: "red",
-          },
-        });
-        hawaiiHeatLayer.addTo(hawaiiMap);
-        hawaiiHeatLayerRef.current = hawaiiHeatLayer;
-
-        updateHeatmap();
-        setMapInitialized(true);
-      } catch (error) {
-        console.error("Error initializing map:", error);
-      }
-    };
-
-
-    initializeMap();
-
-    return () => {
-      removeHeatLayers();
-      const timeSlider = timeSliderRef.current;
-      if (timeSlider) {
-        timeSlider.addEventListener("input", updateHeatmap);
-      }
-
-      if (map && heatLayer) {
-        map.remove();
-        heatLayerRef.current = null;
-      }
-
-      if (alaskaMap && alaskaHeatLayer) {
-        alaskaMap.remove();
-        alaskaHeatLayerRef.current = null;
-      }
-
-      if (hawaiiMap && hawaiiHeatLayer) {
-        hawaiiMap.remove();
-        hawaiiHeatLayerRef.current = null;
-      }
-    };
-  }, []);
 
   useEffect(() => {
     if (mapInitialized) {
@@ -704,8 +709,8 @@ export default function Map() {
             />
       )}
       {showAbout && (
-        <div className="popup">
-          <div className="popup-content">
+        <div className="blurb">
+          <div className="blurb-content">
             <p>
               SAY THEIR NAMES is an ongoing research and mapping project, intended to identify and remember Black Americans
               killed by police violence since 1919. It is designed with an open-ended timeline to permit several successive
@@ -736,8 +741,8 @@ export default function Map() {
         </div>
       )}
       {showMethodology && (
-        <div className="popup">
-          <div className="popup-content">
+        <div className="blurb">
+          <div className="blurb-content">
             <p>
               SAY THEIR NAMES documents incidents that likely would not have resulted in the death of white Americans given
               the same set of circumstances. Each reported case is examined against certain criteria as our focus for the
