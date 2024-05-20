@@ -41,6 +41,7 @@ export default function Map() {
     CA: { lat: 36.116203, lon: -119.681564 },
     CO: { lat: 39.059811, lon: -105.311104 },
     CT: { lat: 41.597782, lon: -72.755371 },
+    DC: { lat: 38.89511, lon: -77.03637 },
     DE: { lat: 39.318523, lon: -75.507141 },
     FL: { lat: 27.766279, lon: -81.686783 },
     GA: { lat: 33.040619, lon: -83.643074 },
@@ -307,6 +308,12 @@ export default function Map() {
     clearInterval(autoplayIntervalRef.current);
   
     autoplayIntervalRef.current = setInterval(() => {
+      if (!mapRef.current || !heatLayerRef.current || !alaskaHeatLayerRef.current || !hawaiiHeatLayerRef.current) {
+        clearInterval(autoplayIntervalRef.current);
+        setAutoplay(false);
+        return;
+      }
+  
       currentTime += step;
       currentPercentage = ((currentTime - minDate.getTime()) / (maxDate.getTime() - minDate.getTime())) * 100;
   
@@ -325,45 +332,34 @@ export default function Map() {
   
       try {
         const filteredData = heatmapData.filter(
-          (dataPoint) =>
-            new Date(dataPoint.incident_date) <= currentTime &&
-            (selectedState === "All" || dataPoint.state === selectedState) &&
-            (selectedGender === "All" || dataPoint.gender === selectedGender) &&
-            (dataPoint.age >= selectedAgeRange[0] && dataPoint.age <= selectedAgeRange[1])
+          (dataPoint) => new Date(dataPoint.incident_date) <= currentTime &&
+          (selectedState === "All" || dataPoint.state === selectedState) &&
+          (selectedGender === "All" || dataPoint.gender === selectedGender) &&
+          (dataPoint.age >= selectedAgeRange[0] && dataPoint.age <= selectedAgeRange[1])
         );
   
-        const heatPoints = filteredData.map((point) => [
-          parseFloat(point.latitude),
-          parseFloat(point.longitude),
-          point.intensity,
+        const heatPoints = filteredData.map(point => [
+          parseFloat(point.latitude), parseFloat(point.longitude), point.intensity
         ]);
   
         const alaskaFilteredData = filteredData.filter(
-          (dataPoint) =>
-            new Date(dataPoint.incident_date) <= currentTime &&
-            dataPoint.latitude >= 54.5 &&
-            dataPoint.latitude <= 71.5 &&
-            dataPoint.longitude >= -160 &&
-            dataPoint.longitude <= -140
+          dataPoint => new Date(dataPoint.incident_date) <= currentTime &&
+            dataPoint.latitude >= 54.5 && dataPoint.latitude <= 71.5 &&
+            dataPoint.longitude >= -160 && dataPoint.longitude <= -140
         );
   
-        const alaskaHeatPoints = alaskaFilteredData.map((point) => [
-          parseFloat(point.latitude),
-          parseFloat(point.longitude),
-          point.intensity,
+        const alaskaHeatPoints = alaskaFilteredData.map(point => [
+          parseFloat(point.latitude), parseFloat(point.longitude), point.intensity
         ]);
   
         const hawaiiFilteredData = filteredData.filter(
-          (dataPoint) =>
-            new Date(dataPoint.incident_date) <= currentTime &&
+          dataPoint => new Date(dataPoint.incident_date) <= currentTime &&
             ((dataPoint.latitude >= 18.5 && dataPoint.latitude <= 20.5) ||
               (dataPoint.longitude >= -161 && dataPoint.longitude <= -154))
         );
   
-        const hawaiiHeatPoints = hawaiiFilteredData.map((point) => [
-          parseFloat(point.latitude),
-          parseFloat(point.longitude),
-          point.intensity,
+        const hawaiiHeatPoints = hawaiiFilteredData.map(point => [
+          parseFloat(point.latitude), parseFloat(point.longitude), point.intensity
         ]);
   
         if (heatLayerRef.current && alaskaHeatLayerRef.current && hawaiiHeatLayerRef.current) {
@@ -382,6 +378,7 @@ export default function Map() {
       }
     }, intervalDuration);
   };
+  
 
   const removeHeatLayers = () => {
     if (heatLayerRef.current) {
