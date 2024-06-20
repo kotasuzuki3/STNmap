@@ -7,13 +7,15 @@ export default function PointMap() {
   const mapRef = useRef(null);
   const alaskaMapRef = useRef(null);
   const hawaiiMapRef = useRef(null);
+  const alaskaLayerRef = useRef(null);
+  const hawaiiLayerRef = useRef(null);
   const [autoplay, setAutoplay] = useState(false);
   const pointLayerRef = useRef(null);
   const [pointData, setPointData] = useState([]);
   const [showAbout, setShowAbout] = useState(false);
   const [showMethodology, setShowMethodology] = useState(false);
   const [activeButton, setActiveButton] = useState("");
-  const [map, setMap] = useState(null); 
+  const [map, setMap] = useState(null);
   const [selectedState, setSelectedState] = useState("All");
   const [selectedGender, setSelectedGender] = useState("All");
   const [selectedAgeRange, setSelectedAgeRange] = useState([0, 100]);
@@ -37,10 +39,10 @@ export default function PointMap() {
   };
 
   const validData = filterValidData(pointData);
-  
+
   const [selectedTime, setSelectedTime] = useState(new Date(Math.max(...validData.map((point) => new Date(point.incident_date)))));
   const stateCoordinates = {
-    AL: { lat: 32.806671, lon: -86.791130 },
+    AL: { lat: 32.806671, lon: -86.79113 },
     AK: { lat: 61.370716, lon: -152.404419 },
     AZ: { lat: 33.729759, lon: -111.431221 },
     AR: { lat: 34.969704, lon: -92.373123 },
@@ -56,8 +58,8 @@ export default function PointMap() {
     IL: { lat: 40.349457, lon: -88.986137 },
     IN: { lat: 39.849426, lon: -86.258278 },
     IA: { lat: 42.011539, lon: -93.210526 },
-    KS: { lat: 38.526600, lon: -96.726486 },
-    KY: { lat: 37.668140, lon: -84.670067 },
+    KS: { lat: 38.5266, lon: -96.726486 },
+    KY: { lat: 37.66814, lon: -84.670067 },
     LA: { lat: 31.169546, lon: -91.867805 },
     ME: { lat: 44.693947, lon: -69.381927 },
     MD: { lat: 39.063946, lon: -76.802101 },
@@ -67,7 +69,7 @@ export default function PointMap() {
     MS: { lat: 32.741646, lon: -89.678696 },
     MO: { lat: 38.456085, lon: -92.288368 },
     MT: { lat: 46.921925, lon: -110.454353 },
-    NE: { lat: 41.125370, lon: -98.268082 },
+    NE: { lat: 41.12537, lon: -98.268082 },
     NV: { lat: 38.313515, lon: -117.055374 },
     NH: { lat: 43.452492, lon: -71.563896 },
     NJ: { lat: 40.298904, lon: -74.521011 },
@@ -79,7 +81,7 @@ export default function PointMap() {
     OK: { lat: 35.565342, lon: -96.928917 },
     OR: { lat: 44.572021, lon: -122.070938 },
     PA: { lat: 40.590752, lon: -77.209755 },
-    RI: { lat: 41.680893, lon: -71.511780 },
+    RI: { lat: 41.680893, lon: -71.51178 },
     SC: { lat: 33.856892, lon: -80.945007 },
     SD: { lat: 44.299782, lon: -99.438828 },
     TN: { lat: 35.747845, lon: -86.692345 },
@@ -90,7 +92,7 @@ export default function PointMap() {
     WA: { lat: 47.400902, lon: -121.490494 },
     WV: { lat: 38.491226, lon: -80.954032 },
     WI: { lat: 44.268543, lon: -89.616508 },
-    WY: { lat: 42.755966, lon: -107.302490 },
+    WY: { lat: 42.755966, lon: -107.30249 },
   };
 
   const states = [...new Set(pointData.map((point) => point.state))].sort();
@@ -103,7 +105,6 @@ export default function PointMap() {
   });
 
   const handleApplyFilters = () => {
-
     setSelectedState(pendingFilters.selectedState);
     setSelectedGender(pendingFilters.selectedGender);
     setSelectedAgeRange(pendingFilters.selectedAgeRange);
@@ -121,17 +122,16 @@ export default function PointMap() {
       selectedYear: "All",
       selectedTime: new Date(Math.max(...validData.map((point) => new Date(point.incident_date)))),
     };
-  
+
     setPendingFilters(defaultFilters);
     setSelectedState(defaultFilters.selectedState);
     setSelectedGender(defaultFilters.selectedGender);
     setSelectedAgeRange(defaultFilters.selectedAgeRange);
     setSelectedYear(defaultFilters.selectedYear);
     setSelectedTime(defaultFilters.selectedTime);
-  
+
     updateMapWithFilteredData(validData);
   };
-  
 
   const handleSelectedStateChange = (value) => {
     setPendingFilters((prevFilters) => ({ ...prevFilters, selectedState: value }));
@@ -149,7 +149,7 @@ export default function PointMap() {
         value[1] !== undefined ? value[1] : prevFilters.selectedAgeRange[1],
       ],
     }));
-  };  
+  };
 
   const handleSelectedYearChange = (value) => {
     setPendingFilters((prevFilters) => ({ ...prevFilters, selectedYear: value }));
@@ -193,46 +193,46 @@ export default function PointMap() {
       const incidentTimestamp = new Date(point.incident_date).getTime();
       return incidentTimestamp <= selectedTimestamp;
     });
-  
+
     updateMapWithFilteredData(filteredData);
   };
 
   const handleResetZoom = () => {
-    
-      map.setView([40.0902, -100.7129], 5);
-  
+    map.setView([40.0902, -100.7129], 5);
+
     // Reset Alaska map's view
     if (alaskaMapRef.current) {
       alaskaMapRef.current.setView([64.2008, -149.4937], 2);
     }
-  
+
     // Reset Hawaii map's view
     if (hawaiiMapRef.current) {
       hawaiiMapRef.current.setView([21.3114, -157.7964], 5);
     }
-};
+  };
 
   const calculateFormattedDate = (sliderValue) => {
     const minDate = new Date("2010-01-01");
     const maxDate = new Date(Math.max(...pointData.map((point) => new Date(point.incident_date))));
     const step = (maxDate - minDate) / 100;
-  
+
     const selectedTimestamp = +minDate + step * sliderValue;
     const selectedDate = new Date(selectedTimestamp);
-    return `${(selectedDate.getMonth() + 1).toString().padStart(2, '0')}/${selectedDate.getDate().toString().padStart(2, '0')}/${selectedDate.getFullYear()}`;
+    return `${(selectedDate.getMonth() + 1).toString().padStart(2, "0")}/${selectedDate.getDate()
+      .toString()
+      .padStart(2, "0")}/${selectedDate.getFullYear()}`;
   };
 
   const handleAutoplay = () => {
     setAutoplay(!autoplay);
-  
+
     if (autoplay) {
       clearInterval(autoplayIntervalRef.current);
     } else {
-      
       autoplayIntervalRef.current = setInterval(() => {
         const timeSlider = timeSliderRef.current;
         const currentValue = parseInt(timeSlider.value);
-        const newValue = (currentValue + 1) % 101; 
+        const newValue = (currentValue + 1) % 101;
         timeSlider.value = newValue;
         timeLabelRef.current.textContent = calculateFormattedDate(newValue);
       }, 350);
@@ -240,80 +240,80 @@ export default function PointMap() {
   };
 
   const updateMapWithFilteredData = (validData) => {
-    if (map) {
-      if (!pointLayerRef.current) {
-        pointLayerRef.current = L.featureGroup().addTo(map);
-      } else {
-        pointLayerRef.current.clearLayers();
+    try {
+      if (map) {
+        if (!pointLayerRef.current) {
+          pointLayerRef.current = L.featureGroup().addTo(map);
+        } else {
+          pointLayerRef.current.clearLayers();
+        }
       }
-    }
   
-    const filteredData = validData
-      .filter(
-        (point) =>
-          (pendingFilters.selectedState === "All" || point.state === pendingFilters.selectedState) &&
-          (pendingFilters.selectedGender === "All" || point.gender === pendingFilters.selectedGender)
-      )
-      .filter((point) => {
-        const age = point.age;
-        return age >= pendingFilters.selectedAgeRange[0] && age <= pendingFilters.selectedAgeRange[1];
-      })
-      .filter(
-        (point) =>
-          new Date(point.incident_date).getTime() <= selectedTime
-      )
-      .filter(
-        (point) =>
-          (pendingFilters.selectedYear === "All" ||
-            new Date(point.incident_date).getFullYear() === parseInt(pendingFilters.selectedYear))
-      );
+      if (alaskaMapRef.current) {
+        if (!alaskaLayerRef.current) {
+          alaskaLayerRef.current = L.featureGroup().addTo(alaskaMapRef.current);
+        } else {
+          alaskaLayerRef.current.clearLayers();
+        }
+      }
   
-    filteredData.forEach((point) => {
-      const customIcon = L.icon({
-        iconUrl:
-          "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-Free-Download-PNG.png",
-        iconSize: [20, 20],
+      if (hawaiiMapRef.current) {
+        if (!hawaiiLayerRef.current) {
+          hawaiiLayerRef.current = L.featureGroup().addTo(hawaiiMapRef.current);
+        } else {
+          hawaiiLayerRef.current.clearLayers();
+        }
+      }
+  
+      const filteredData = validData
+        .filter(
+          (point) =>
+            (pendingFilters.selectedState === "All" || point.state === pendingFilters.selectedState) &&
+            (pendingFilters.selectedGender === "All" || point.gender === pendingFilters.selectedGender)
+        )
+        .filter((point) => {
+          const age = point.age;
+          return age >= pendingFilters.selectedAgeRange[0] && age <= pendingFilters.selectedAgeRange[1];
+        })
+        .filter((point) => new Date(point.incident_date).getTime() <= selectedTime)
+        .filter(
+          (point) =>
+            pendingFilters.selectedYear === "All" ||
+            new Date(point.incident_date).getFullYear() === parseInt(pendingFilters.selectedYear)
+        );
+  
+      filteredData.forEach((point) => {
+        const customIcon = L.icon({
+          iconUrl: "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-Free-Download-PNG.png",
+          iconSize: [20, 20],
+        });
+  
+        const marker = L.marker([point.latitude, point.longitude], { icon: customIcon }).addTo(pointLayerRef.current);
+  
+        let popUpContent = `<div class="popup-content">`;
+  
+        if (point.url) {
+          popUpContent += `<img src="${point.url}" alt="${point.first_name} ${point.last_name}" style="width: 100px; height: 110px;"><br>`;
+        }
+  
+        popUpContent += `<strong>${point.first_name} ${point.last_name}</strong><br>Location: ${point.city}, ${point.state}<br>Incident Date: ${point.incident_date}<br>Gender: ${point.gender}<br>Age: ${point.age}<br><div class="popup-bio">Description: ${point.bio_info}</div></div>`;
+  
+        marker.bindPopup(popUpContent);
+  
+        if (point.state === "AK") {
+          L.marker([point.latitude, point.longitude], { icon: customIcon }).addTo(alaskaLayerRef.current);
+        }
+  
+        if (point.state === "HI") {
+          L.marker([point.latitude, point.longitude], { icon: customIcon }).addTo(hawaiiLayerRef.current);
+        }
       });
-  
-      const marker = L.marker(
-        [point.latitude, point.longitude],
-        { icon: customIcon }
-      ).addTo(pointLayerRef.current);
-
-      L.marker(
-        [point.latitude, point.longitude],
-        { icon: customIcon }
-      ).addTo(alaskaMapRef.current);
-    
-      L.marker(
-        [point.latitude, point.longitude],
-        { icon: customIcon }
-      ).addTo(hawaiiMapRef.current);
-  
-      let popUpContent = `<div class="popup-content">`;
-  
-      if (point.url) {
-        popUpContent += `
-          <img src="${point.url}" alt="${point.first_name} ${point.last_name}" style="width: 100px; height: 110px;"><br>`;
-      }
-  
-      popUpContent += `
-        <strong>${point.first_name} ${point.last_name}</strong><br>
-        Location: ${point.city}, ${point.state}<br>
-        Incident Date: ${point.incident_date}<br>
-        Gender: ${point.gender}<br>
-        Age: ${point.age}<br>
-        <div class="popup-bio">
-          Description: ${point.bio_info}
-        </div>
-      </div>`;
-  
-      marker.bindPopup(popUpContent);
-    });
+    } catch (error) {
+      console.error("Error updating map with filtered data:", error);
+    }
   };
   
   
-
   useEffect(() => {
     const initializeMap = async () => {
       try {
@@ -329,107 +329,74 @@ export default function PointMap() {
             incident_date: new Date(point.incident_date).toISOString().split("T")[0],
           }));
         setPointData(validData);
-
-          const map = L.map(mapRef.current, {
-            zoomControl: false,
-          }).setView([40.0902, -100.7129], 5);
-
-          const basemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-            attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
-            minZoom: 3,
-          });
-          basemapLayer.addTo(map);
-
-          setMap(map);
-
-          const defaultFilters = {
-            selectedState: "All",
-            selectedGender: "All",
-            selectedAgeRange: [0, 100],
-            selectedYear: "All",
-            selectedTime: new Date(Math.max(...validData.map((point) => new Date(point.incident_date)))),
-          };
-
-          // Initialize the Alaska Map
-          const alaskaMap = L.map("alaska-map", {
-            zoomControl: false,
-          }).setView([64.2008, -149.4937], 2);
-          alaskaMapRef.current = alaskaMap;
-
-          const alaskaBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-            minZoom: 3,
-          });
-          alaskaBasemapLayer.addTo(alaskaMap);
-
-          // Initialize the Hawaii map
-          const hawaiiMap = L.map("hawaii-map", {
-            zoomControl: false,
-          }).setView([21.3114, -157.7964], 5);
-          hawaiiMapRef.current = hawaiiMap;
-
-          const hawaiiBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-            minZoom: 3,
-          });
-          hawaiiBasemapLayer.addTo(hawaiiMap);
-          
+    
+        const map = L.map(mapRef.current, {
+          zoomControl: false,
+        }).setView([40.0902, -100.7129], 5);
+    
+        const basemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+          attribution: "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ",
+          minZoom: 3,
+        });
+        basemapLayer.addTo(map);
+    
+        setMap(map);
+    
+        const alaskaMap = L.map("alaska-map", {
+          zoomControl: false,
+        }).setView([64.2008, -149.4937], 2);
+        alaskaMapRef.current = alaskaMap;
+    
+        const alaskaBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+          minZoom: 3,
+        });
+        alaskaBasemapLayer.addTo(alaskaMap);
+    
+        const hawaiiMap = L.map("hawaii-map", {
+          zoomControl: false,
+        }).setView([21.3114, -157.7964], 5);
+        hawaiiMapRef.current = hawaiiMap;
+    
+        const hawaiiBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+          minZoom: 3,
+        });
+        hawaiiBasemapLayer.addTo(hawaiiMap);
+    
         pointLayerRef.current = L.featureGroup().addTo(map);
-
-        setPendingFilters(defaultFilters)
-
+        alaskaLayerRef.current = L.featureGroup().addTo(alaskaMap);
+        hawaiiLayerRef.current = L.featureGroup().addTo(hawaiiMap);
+    
         validData.forEach((point) => {
           const customIcon = L.icon({
-            iconUrl:
-              "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-Free-Download-PNG.png",
+            iconUrl: "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-Free-Download-PNG.png",
             iconSize: [20, 20],
           });
     
-          const marker = L.marker(
-            [point.latitude, point.longitude],
-            { icon: customIcon }
-          ).addTo(pointLayerRef.current);
-          
+          const marker = L.marker([point.latitude, point.longitude], { icon: customIcon }).addTo(pointLayerRef.current);
+    
           let popUpContent = `<div class="popup-content">`;
-      
-      if (point.url) {
-        popUpContent += `
-          <img src="${point.url}" alt="${point.first_name} ${point.last_name}" style="width: 100px; height: 110px;"><br>`;
-      }
     
-      popUpContent += `
-        <strong>${point.first_name} ${point.last_name}</strong><br>
-        Location: ${point.city}, ${point.state}<br>
-        Incident Date: ${point.incident_date}<br>
-        Gender: ${point.gender}<br>
-        Age: ${point.age}<br>
-        <div class="popup-bio">
-          Description: ${point.bio_info}
-        </div>
-      </div>`;
+          if (point.url) {
+            popUpContent += `<img src="${point.url}" alt="${point.first_name} ${point.last_name}" style="width: 100px; height: 110px;"><br>`;
+          }
     
-      marker.bindPopup(popUpContent);
+          popUpContent += `<strong>${point.first_name} ${point.last_name}</strong><br>Location: ${point.city}, ${point.state}<br>Incident Date: ${point.incident_date}<br>Gender: ${point.gender}<br>Age: ${point.age}<br><div class="popup-bio">Description: ${point.bio_info}</div></div>`;
     
+          marker.bindPopup(popUpContent);
     
-      if (point.state === "AK") {
-        const alaskaMarker = L.marker(
-          [point.latitude, point.longitude],
-          { icon: customIcon }
-        ).addTo(alaskaMapRef.current);
-      }
+          if (point.state === "AK") {
+            L.marker([point.latitude, point.longitude], { icon: customIcon }).addTo(alaskaLayerRef.current);
+          }
     
-      if (point.state === "HI") {
-        const hawaiiMarker = L.marker(
-          [point.latitude, point.longitude],
-          { icon: customIcon }
-        ).addTo(hawaiiMapRef.current);
-      }
+          if (point.state === "HI") {
+            L.marker([point.latitude, point.longitude], { icon: customIcon }).addTo(hawaiiLayerRef.current);
+          }
         });
-
       } catch (error) {
         console.error("Error initializing main map:", error);
       }
-    
-    };
-    initializeMap()
+    };    
+    initializeMap();
   }, []);
 
   useEffect(() => {
@@ -443,16 +410,14 @@ export default function PointMap() {
       }
     }
 
-    if (map) { 
+    if (map) {
       if (selectedState === "All") {
         map.setView([40.0902, -100.7129], 5);
       }
     }
 
     updateMapWithFilteredData(validData);
-
   }, [selectedState, selectedGender, selectedAgeRange, selectedTime, selectedYear]);
-
 
   return (
     <div className="map-container">
