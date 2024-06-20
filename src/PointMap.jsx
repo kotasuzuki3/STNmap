@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { debounce } from 'lodash';
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "./index.css";
@@ -189,29 +188,6 @@ export default function PointMap() {
     window.open("https://form.jotform.com/231036759147055", "_blank");
   };
 
-  const handleTimeSliderChange = debounce(() => {
-    const timeSlider = timeSliderRef.current;
-    const value = parseInt(timeSlider.value);
-
-    const minDate = new Date("2010-01-01");
-    const maxDate = new Date(Math.max(...validData.map((point) => new Date(point.incident_date))));
-
-    const selectedTimestamp = +minDate + (+maxDate - +minDate) * (value / 100);
-    const selectedDate = new Date(selectedTimestamp);
-
-    const formattedDate = `${(selectedDate.getMonth() + 1).toString().padStart(2, '0')}/${selectedDate.getDate().toString().padStart(2, '0')}/${selectedDate.getFullYear()}`;
-
-    timeLabelRef.current.textContent = formattedDate;
-
-    if (selectedYear === "All" || validData.some((point) => new Date(point.incident_date).getFullYear() === parseInt(selectedYear))) {
-      setSelectedTime(selectedTimestamp);
-      updateMapWithSelectedTime(selectedTimestamp);
-    }
-  }, 150);
-  
-
-  
-
   const updateMapWithSelectedTime = (selectedTimestamp) => {
     const filteredData = validData.filter((point) => {
       const incidentTimestamp = new Date(point.incident_date).getTime();
@@ -259,7 +235,6 @@ export default function PointMap() {
         const newValue = (currentValue + 1) % 101; 
         timeSlider.value = newValue;
         timeLabelRef.current.textContent = calculateFormattedDate(newValue);
-        handleTimeSliderChange();
       }, 350);
     }
   };

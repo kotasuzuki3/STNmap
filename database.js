@@ -12,9 +12,7 @@ client.connect(function(err) {
   console.log("Connected!");
 });
 
-// Assuming you have already connected to the database using the code you provided
 
-// Example query to fetch data from a table
 const fetchTableData = async () => {
   try {
     const query = 'SELECT * FROM api_incident'; 
