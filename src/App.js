@@ -18,7 +18,7 @@ export default function App() {
   }
 
   return (
-    <div className="App">
+    <div className={`App ${mapType}-view`}>
       <button onClick={handleFlipMap} className="toggle-button">
         {mapType === "point" ? "View Heat Map" : "View Point Map"}
       </button>

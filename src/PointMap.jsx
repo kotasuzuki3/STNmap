@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "./index.css";
+import ReactSlider from "react-slider";
+import logo from "./assets/logo.png";
 
 export default function PointMap() {
   const mapRef = useRef(null);
@@ -344,8 +346,13 @@ export default function PointMap() {
     
         const alaskaMap = L.map("alaska-map", {
           zoomControl: false,
+          attributionControl: false
         }).setView([64.2008, -149.4937], 2);
         alaskaMapRef.current = alaskaMap;
+
+        setTimeout(() => {
+          alaskaMap.invalidateSize();
+        }, 0);
     
         const alaskaBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
           minZoom: 3,
@@ -354,8 +361,13 @@ export default function PointMap() {
     
         const hawaiiMap = L.map("hawaii-map", {
           zoomControl: false,
+          attributionControl: false
         }).setView([21.3114, -157.7964], 5);
         hawaiiMapRef.current = hawaiiMap;
+
+        setTimeout(() => {
+          hawaiiMap.invalidateSize();
+        }, 0);
     
         const hawaiiBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
           minZoom: 3,
@@ -422,12 +434,14 @@ export default function PointMap() {
   return (
     <div className="map-container">
       <div className="menu">
+        <div className="menu-header">
         <img
-          src="https://www.nonopera.org/WP2/wp-content/uploads/2016/12/NONopNEWlogo-round300-1.jpg"
+          src={logo}
           alt="Logo"
           className="logo-image"
         />
-        <div className="logo-text">SAY THEIR NAMES</div>
+          <div className="logo-text">SAY THEIR NAMES</div>
+        </div>
         <ul className="menu-item-list">
           <li>
             <a href="#" onClick={toggleMethodology} className={activeButton === "methodology" ? "active" : ""}>
@@ -478,13 +492,12 @@ export default function PointMap() {
               <div className="dashboard-section">
                 <div className="dashboard-section-title"></div>
                 <div className="dashboard-section-content">
-                  <img
-                    src="https://cdn.icon-icons.com/icons2/1863/PNG/512/zoom-out-map_118446.png"
-                    alt="Reset Zoom"
-                    className="dashboard-icon"
-                    onClick={handleResetZoom}
-                    style={{ width: "25px", height: "25px", marginLeft: "-225px", transform: "translateY(-45px)", }}
-                  />
+                <img
+                  src="https://cdn.icon-icons.com/icons2/1863/PNG/512/zoom-out-map_118446.png"
+                  alt="Reset Zoom"
+                  className="reset-zoom-button"
+                  onClick={handleResetZoom}
+                />
                 </div>
               </div>
               <div className="dashboard-section">
@@ -558,30 +571,23 @@ export default function PointMap() {
         </div>
         <br></br>
         <div className="filter">
-  <label htmlFor="ageRangeFilter">Select Age Range:</label>
-  <div className="range-slider">
-    <input
-      type="range"
-      min={0}
-      max={100}
-      value={pendingFilters.selectedAgeRange[0]}
-      onChange={(e) =>
-        handleSelectedAgeRangeChange([parseInt(e.target.value), pendingFilters.selectedAgeRange[1]])
-      }
-    />
-    <input
-      type="range"
-      min={0}
-      max={100}
-      value={pendingFilters.selectedAgeRange[1]}
-      onChange={(e) =>
-        handleSelectedAgeRangeChange([pendingFilters.selectedAgeRange[0], parseInt(e.target.value)])
-      }
-    />
-  </div>
-  <div>
-    {pendingFilters.selectedAgeRange[0]} - {pendingFilters.selectedAgeRange[1]} years
-  </div>
+          <div className="range-slider">
+          <label htmlFor="ageRangeFilter">Select Age Range:</label>
+          <ReactSlider
+            className="age-range-slider"
+            thumbClassName="thumb"
+            trackClassName="track"
+            value={pendingFilters.selectedAgeRange}
+            min={0}
+            max={100}
+            onChange={(value) => handleSelectedAgeRangeChange(value)}
+            pearling
+            minDistance={1}
+          />
+        <div>
+          {pendingFilters.selectedAgeRange[0]} - {pendingFilters.selectedAgeRange[1]} years
+        </div>
+</div>
   <br></br>
   <div className="apply-reset-buttons">
                 <button onClick={handleResetFilters}>Reset</button>

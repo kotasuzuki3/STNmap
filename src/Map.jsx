@@ -3,6 +3,8 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet.heat";
 import "./index.css";
+import logo from "./assets/logo.png";
+import ReactSlider from "react-slider";
 
 export default function Map() {
   const mapRef = useRef(null);
@@ -117,6 +119,7 @@ export default function Map() {
         // Initialize the Alaska Map
         alaskaMap = L.map("alaska-map", {
           zoomControl: false,
+          attributionControl: false
         }).setView([64.2008, -149.4937], 2); 
 
         const alaskaBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
@@ -125,9 +128,14 @@ export default function Map() {
         alaskaBasemapLayer.addTo(alaskaMap);
         setAlaskaMap(alaskaMap);
 
+        setTimeout(() => {
+          alaskaMap.invalidateSize();
+        }, 0);
+
         // Initialize Hawaii map
         hawaiiMap = L.map("hawaii-map", {
           zoomControl: false,
+          attributionControl: false
         }).setView([21.3114, -157.7964], 5); 
 
         const hawaiiBasemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
@@ -135,6 +143,10 @@ export default function Map() {
         });
         hawaiiBasemapLayer.addTo(hawaiiMap);
         setHawaiiMap(hawaiiMap);
+
+        setTimeout(() => {
+          hawaiiMap.invalidateSize();
+        }, 0);
 
         const minDate = new Date("2010-01-01");
         const maxDate = new Date(Math.max(...validData.map((point) => new Date(point.incident_date))));
@@ -378,24 +390,7 @@ export default function Map() {
       }
     }, intervalDuration);
   };
-  
 
-  const removeHeatLayers = () => {
-    if (heatLayerRef.current) {
-      heatLayerRef.current.remove();
-      heatLayerRef.current = null;
-    }
-
-    if (alaskaHeatLayerRef.current) {
-      alaskaHeatLayerRef.current.remove();
-      alaskaHeatLayerRef.current = null;
-    }
-
-    if (hawaiiHeatLayerRef.current) {
-      hawaiiHeatLayerRef.current.remove();
-      hawaiiHeatLayerRef.current = null;
-    }
-  };
 
   const filterValidData = (data) => {
     const validData = data
@@ -543,7 +538,7 @@ export default function Map() {
     <div className="map-container">
       <div className="menu">
         <img
-          src="https://www.nonopera.org/WP2/wp-content/uploads/2016/12/NONopNEWlogo-round300-1.jpg"
+          src={logo}
           alt="Logo"
           className="logo-image"
         />
@@ -601,9 +596,8 @@ export default function Map() {
                   <img
                     src="https://cdn.icon-icons.com/icons2/1863/PNG/512/zoom-out-map_118446.png"
                     alt="Reset Zoom"
-                    className="dashboard-icon"
+                    className="reset-zoom-button"
                     onClick={handleResetZoom}
-                    style={{ width: "25px", height: "25px", marginLeft: "-225px", transform: "translateY(-45px)", }}
                   />
                 </div>
               </div>
@@ -662,28 +656,22 @@ export default function Map() {
         <div className="filter">
   <label htmlFor="ageRangeFilter">Select Age Range:</label>
   <div className="range-slider">
-    <input
-      type="range"
-      min={0}
-      max={100}
-      value={pendingAgeRange[0]}
-      onChange={(e) =>
-        setPendingAgeRange([parseInt(e.target.value), pendingAgeRange[1]])
-      }
-    />
-    <input
-      type="range"
-      min={0}
-      max={100}
-      value={pendingAgeRange[1]}
-      onChange={(e) =>
-        setPendingAgeRange([pendingAgeRange[0], parseInt(e.target.value)])
-      }
-    />
-  </div>
-  <div>
+  <label htmlFor="ageRangeFilter">Select Age Range:</label>
+  <ReactSlider
+    className="age-range-slider"
+    thumbClassName="thumb"
+    trackClassName="track"
+    value={pendingAgeRange}
+    min={0}
+    max={100}
+    onChange={(value) => setPendingAgeRange(value)}
+    pearling
+    minDistance={1}
+  />
+  <div className="range-values">
     {pendingAgeRange[0]} - {pendingAgeRange[1]} years
   </div>
+</div>
   <br></br>
   <div className="apply-reset-buttons">
           <button onClick={resetFilters}>Reset</button>

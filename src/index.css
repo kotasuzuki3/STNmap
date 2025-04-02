@@ -1,6 +1,5 @@
 .map-container {
   position: fixed;
-  display: absolute;
   width: 100vw;
   height: 100vh;
 }
@@ -20,16 +19,10 @@
   z-index: 1001;
 }
 
-.logo-container img {
-  width: 100px;
-  height: 100px;
-  border-radius: 13%;
-}
-
 /* ...Necessary Dashboard code... */
 
 .dashboard {
-  position: absolute;
+  position: relative;
   top: 130px;
   left: 10px;
   width: 250px; 
@@ -38,10 +31,17 @@
   border: white;
   background-color: #333;
   z-index: 1000;
-  padding: 20px;
+  padding: 10px;
   overflow-y: auto;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+}
+
+.point-view .dashboard {
+  height: 31vh;
+}
+
+.heatmap-view .dashboard {
+  height: 40vh;
 }
 
 .dashboard.collapsed {
@@ -84,7 +84,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
 }
 
 .reset-zoom-button {
@@ -92,15 +91,10 @@
   top: 10px;
   left: 10px;
   z-index: 1000;
-  padding: 8px 12px;
-  background-color: #fff;
-  border: 1px solid rgb(255, 255, 255);
-  border-radius: 4px;
-  font-size: 14px;
+  width: 25px;
+  height: 25px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 4px;
 }
 
 .reset-zoom-button img {
@@ -200,7 +194,6 @@
   color: white;
   margin-right: 0px;
   padding: 25px 8px;
-  display: absolute; 
   align-items: center;
   width: 100%;
   position: fixed;
@@ -305,4 +298,382 @@
   margin-right: 10px; 
   color: #333; 
   transition: background-color 0.3s ease;
+}
+
+.range-slider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin: 20px auto;
+}
+
+.age-range-slider {
+  width: 60%;
+  height: 5px;
+  background: #ccc;
+  margin: 10px 0;
+  position: relative;
+}
+
+.age-range-slider .thumb {
+  height: 15px;
+  width: 15px;
+  background: #444;
+  border-radius: 25%;
+  cursor: grab;
+  position: absolute;
+  top: -5px;
+}
+
+.age-range-slider .track {
+  background: #aaa;
+  border-radius: 1px;
+}
+
+
+
+
+/* 📱 Mobile styles only */
+@media (max-width: 768px) {
+
+  .map-container {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+  }
+  
+  .map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .logo-container {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1001;
+  }
+  
+  .dashboard {
+    position: flex;
+    top: 105px;
+    left: 10px;
+    width: 250px; 
+    height: 45vh;
+    border-radius: 5%;
+    border: white;
+    background-color: #333;
+    z-index: 1000;
+    padding: 10px;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+  }
+
+  .point-view .dashboard {
+    height: 32vh;
+  }
+  
+  .heatmap-view .dashboard {
+    height: 40vh;
+  }
+  
+  .dashboard.collapsed {
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: transparent;
+    box-shadow: none;
+    transition: all 0.3s ease; 
+  }
+  
+  
+  .dashboard.collapsed .dashboard-content {
+    display: none; 
+  }
+  
+  .dashboard-toggle {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-size: 16px;
+    z-index: 1002;
+    position: absolute;
+    top: 10px;
+    right: -20px;
+  }
+  
+  .dashboard-toggle img {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .reset-zoom-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    padding: 4px;
+  }
+  
+  .reset-zoom-button img {
+    width: 24px;
+    height: 24px;
+    top: 50px;
+  }
+  
+  .blurb {
+    position: absolute;
+    font-family: "Metrophobic", sans-serif;
+    top: 100px;
+    right: 20px;
+    width: 200px;
+    height: 350px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow: hidden;
+  }
+  
+  .blurb:hover {
+    overflow: auto;
+  }
+  
+  .blurb-content {
+    max-height: 150px; 
+  }
+  
+  .reopen-button {
+    transition: opacity 0.3s ease;
+    z-index: 999;
+    top: 105px;
+    left: 40px;
+    position: absolute;
+    padding: 5px;
+    background-color: #333;
+    color: white;
+    border-radius: 4px;
+    font-size: 10px;
+    cursor: pointer;
+  }
+  
+  .dashboard.collapsed ~ .map-container {
+    left: 0;
+    transition: left 0.3s ease; 
+  }
+  
+  .dashboard.collapsed ~ .logo-container {
+    left: 10px;
+    transition: left 0.3s ease;
+  }
+  
+  .reopen-button.visible {
+    opacity: 1;
+  }
+  
+  .logo-image {
+    position: fixed;
+    width: 30px; 
+    height: 30px; 
+    border-radius: 15%;
+    left:10px; 
+    top: 5px;
+  }
+  
+  .leaflet-control-minimap {
+    width: 300px;
+    height: 300px;
+  }
+  
+  .alaska-map {
+    border: 3px solid #8B0000;
+    position: absolute;
+    bottom: 20px;
+    right: 10px;
+    width: 150px;
+    height: 150px; 
+    z-index: 1002
+  }
+  
+  .hawaii-map {
+    border: 3px solid #8B0000;
+    position: absolute;
+    bottom: 20px;
+    right: 165px;
+    width: 150px;
+    height: 150px; 
+    z-index: 1003
+  }
+  
+  .menu {
+    background-color: #333;
+    color: white;
+    padding-top: 15px;
+    padding-bottom: 4px; 
+    align-items: center;
+    width: 100%;
+    position: fixed;
+    z-index: 1005;
+  }
+
+  .menu-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .menu ul {
+    justify-content: flex-end; 
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+  }
+  
+  .menu li {
+    display: inline-block;
+    margin-right: 20px;
+  }
+  
+  .menu a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  
+  .logo-text {
+    position: absolute;
+    font-family: "Metrophobic", sans-serif;
+    font-size: 18px; 
+    font-weight: bold;
+    color: #ffffff;
+    margin-left: 40px;
+    top: 6px;
+  }
+  
+  .menu-item-list li {
+    display: flex; 
+    gap: 10px;
+    font-family: "Metrophobic", sans-serif;
+  }
+
+  .menu-item-list li a {
+    font-size: 12.5px;
+    margin-top: 20px;
+  }
+
+  .menu-item-list a.active {
+    color: red;
+  }
+  
+  .dashboard-section-title {
+    font-family: "Metrophobic", sans-serif;
+    font-weight: bolder;
+    color: white
+  }
+  
+  .dashboard-section-content {
+    font-family: "Metrophobic", sans-serif;
+    font-size: 13.5px;
+    color: white
+  }
+  
+  .filter {
+    color: white;
+    font-size: 13px;
+  }
+  
+  .pointmap-container {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+  }
+  
+  .popup-content {
+    font-family: "Metrophobic", sans-serif;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .popup-content strong {
+    font-weight: bold;
+    font-size: 20px; 
+  }
+  
+  .popup-bio {
+    font-family: "Metrophobic", sans-serif;
+    max-height: 100px;
+    overflow-y: auto;
+  }
+  
+  .dashboard {
+    font-family: "Metrophobic", sans-serif;
+  }
+  
+  .apply-reset-buttons button {
+    padding: 8px 12px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: "Metrophobic", sans-serif; 
+    font-size: 14px;
+    cursor: pointer;
+    margin-right: 10px; 
+    color: #333; 
+    transition: background-color 0.3s ease;
+  }
+  
+  .range-slider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin: 20px auto;
+  }
+  
+  .age-range-slider {
+    width: 60%;
+    height: 5px;
+    background: #ccc;
+    margin: 10px 0;
+    position: relative;
+  }
+  
+  .age-range-slider .thumb {
+    height: 15px;
+    width: 15px;
+    background: #444;
+    border-radius: 25%;
+    cursor: grab;
+    position: absolute;
+    top: -5px;
+  }
+  
+  .age-range-slider .track {
+    background: #aaa;
+    border-radius: 1px;
+  }
+
 }

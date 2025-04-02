@@ -12,7 +12,7 @@
   font-family: "Metrophobic", sans-serif;
   font-size: 16px;
   top: 82px; 
-  left: 15px; 
+  left: 14px; 
   padding: 10px 15px;
   background-color: #333;
   color: white;
@@ -20,7 +20,24 @@
   border-radius: 4px;
   cursor: pointer;
   z-index: 9998;
-  width: 280px; 
+  width: 267px; 
+}
+
+@media (max-width: 768px) {
+  .toggle-button {
+    position: absolute;
+    font-family: "Metrophobic", sans-serif;
+    font-size: 15px;
+    top: 60px; 
+    left: 10px; 
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    z-index: 9998;
+    width: 150px; 
+  }
 }
 
 
