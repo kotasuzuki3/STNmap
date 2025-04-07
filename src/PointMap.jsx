@@ -11,7 +11,6 @@ export default function PointMap() {
   const hawaiiMapRef = useRef(null);
   const alaskaLayerRef = useRef(null);
   const hawaiiLayerRef = useRef(null);
-  const [autoplay, setAutoplay] = useState(false);
   const pointLayerRef = useRef(null);
   const [pointData, setPointData] = useState([]);
   const [showAbout, setShowAbout] = useState(false);
@@ -23,11 +22,11 @@ export default function PointMap() {
   const [selectedAgeRange, setSelectedAgeRange] = useState([0, 100]);
   const timeSliderRef = useRef(null);
   const timeLabelRef = useRef(null);
-  const autoplayIntervalRef = useRef(null);
   const [showDashboard, setShowDashboard] = useState(true);
   const [selectedYear, setSelectedYear] = useState("All");
   const [showDashboardContent, setShowDashboardContent] = useState(true);
   const [dashboardVisible, setDashboardVisible] = useState(true);
+  const [selectedTime, setSelectedTime] = useState(null);
 
   const filterValidData = (data) => {
     const validData = data
@@ -40,9 +39,7 @@ export default function PointMap() {
     return validData;
   };
 
-  const validData = filterValidData(pointData);
-
-  const [selectedTime, setSelectedTime] = useState(new Date(Math.max(...validData.map((point) => new Date(point.incident_date)))));
+  const validData = filterValidData(pointData);  
   const stateCoordinates = {
     AL: { lat: 32.806671, lon: -86.79113 },
     AK: { lat: 61.370716, lon: -152.404419 },
@@ -213,34 +210,6 @@ export default function PointMap() {
     }
   };
 
-  const calculateFormattedDate = (sliderValue) => {
-    const minDate = new Date("2010-01-01");
-    const maxDate = new Date(Math.max(...pointData.map((point) => new Date(point.incident_date))));
-    const step = (maxDate - minDate) / 100;
-
-    const selectedTimestamp = +minDate + step * sliderValue;
-    const selectedDate = new Date(selectedTimestamp);
-    return `${(selectedDate.getMonth() + 1).toString().padStart(2, "0")}/${selectedDate.getDate()
-      .toString()
-      .padStart(2, "0")}/${selectedDate.getFullYear()}`;
-  };
-
-  const handleAutoplay = () => {
-    setAutoplay(!autoplay);
-
-    if (autoplay) {
-      clearInterval(autoplayIntervalRef.current);
-    } else {
-      autoplayIntervalRef.current = setInterval(() => {
-        const timeSlider = timeSliderRef.current;
-        const currentValue = parseInt(timeSlider.value);
-        const newValue = (currentValue + 1) % 101;
-        timeSlider.value = newValue;
-        timeLabelRef.current.textContent = calculateFormattedDate(newValue);
-      }, 350);
-    }
-  };
-
   const updateMapWithFilteredData = (validData) => {
     try {
       if (map) {
@@ -331,6 +300,25 @@ export default function PointMap() {
             incident_date: new Date(point.incident_date).toISOString().split("T")[0],
           }));
         setPointData(validData);
+
+        const defaultFilters = {
+          selectedState: "All",
+          selectedGender: "All",
+          selectedAgeRange: [0, 100],
+          selectedYear: "All",
+          selectedTime: new Date(Math.max(...validData.map((point) => new Date(point.incident_date)))),
+        };
+
+        setPendingFilters(defaultFilters);
+        setSelectedState(defaultFilters.selectedState);
+        setSelectedGender(defaultFilters.selectedGender);
+        setSelectedAgeRange(defaultFilters.selectedAgeRange);
+        setSelectedYear(defaultFilters.selectedYear);
+        setSelectedTime(defaultFilters.selectedTime);
+
+        updateMapWithFilteredData(validData);
+
+        setSelectedTime(new Date(Math.max(...validData.map((point) => new Date(point.incident_date)))));
     
         const map = L.map(mapRef.current, {
           zoomControl: false,
@@ -501,27 +489,6 @@ export default function PointMap() {
                 </div>
               </div>
               <div className="dashboard-section">
-                {/* <div className="dashboard-section-title">Time Slider</div>
-                <div className="dashboard-section-content">
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    step="1"
-                    defaultValue="0"
-                    className="time-slider"
-                    ref={timeSliderRef}
-                    onInput={handleTimeSliderChange}
-                  />
-                  <div className="time-label" ref={timeLabelRef}></div>
-                  {/* <img
-                    src={autoplay ? "https://www.pngall.com/wp-content/uploads/5/Pause-Button-Transparent.png" : "https://cdn-icons-png.flaticon.com/512/2/2287.png"}
-                    alt="Play/Pause"
-                    className={`autoplay-icon ${autoplay ? "active" : ""}`}
-                    onClick={handleAutoplay}
-                    style={{ width: "25px", height: "25px" }}
-                  /> */}
-                {/* </div>  */}
                 <br></br>
                 <div className="filters">
                 <div className="filter">

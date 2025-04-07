@@ -37,11 +37,11 @@
 }
 
 .point-view .dashboard {
-  height: 31vh;
+  height: 36vh;
 }
 
 .heatmap-view .dashboard {
-  height: 40vh;
+  height: 45vh;
 }
 
 .dashboard.collapsed {

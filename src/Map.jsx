@@ -654,7 +654,6 @@ export default function Map() {
         </div>
         <br></br>
         <div className="filter">
-  <label htmlFor="ageRangeFilter">Select Age Range:</label>
   <div className="range-slider">
   <label htmlFor="ageRangeFilter">Select Age Range:</label>
   <ReactSlider
