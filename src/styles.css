@@ -23,7 +23,9 @@
   width: 267px; 
 }
 
-@media (max-width: 768px) {
+@media only screen and (max-device-width: 768px),
+       only screen and (max-width: 768px) and (orientation: portrait),
+       only screen and (max-height: 500px) {
   .toggle-button {
     position: absolute;
     font-family: "Metrophobic", sans-serif;

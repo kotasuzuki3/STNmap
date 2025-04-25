@@ -27,7 +27,7 @@
   left: 10px;
   width: 250px; 
   height: 45vh;
-  border-radius: 5%;
+  border-radius: 12px;
   border: white;
   background-color: #333;
   z-index: 1000;
@@ -335,7 +335,9 @@
 
 
 /* 📱 Mobile styles only */
-@media (max-width: 768px) {
+@media only screen and (max-device-width: 768px),
+       only screen and (max-width: 768px) and (orientation: portrait),
+       only screen and (max-height: 500px) {
 
   .map-container {
     position: fixed;
@@ -363,7 +365,7 @@
     top: 105px;
     left: 10px;
     width: 250px; 
-    height: 45vh;
+    height: 320px;
     border-radius: 5%;
     border: white;
     background-color: #333;
@@ -374,11 +376,11 @@
   }
 
   .point-view .dashboard {
-    height: 32vh;
+    height: 280px;
   }
   
   .heatmap-view .dashboard {
-    height: 40vh;
+    height: 280px;
   }
   
   .dashboard.collapsed {
@@ -504,26 +506,6 @@
   .leaflet-control-minimap {
     width: 300px;
     height: 300px;
-  }
-  
-  .alaska-map {
-    border: 3px solid #8B0000;
-    position: absolute;
-    bottom: 20px;
-    right: 10px;
-    width: 150px;
-    height: 150px; 
-    z-index: 1002
-  }
-  
-  .hawaii-map {
-    border: 3px solid #8B0000;
-    position: absolute;
-    bottom: 20px;
-    right: 165px;
-    width: 150px;
-    height: 150px; 
-    z-index: 1003
   }
   
   .menu {
@@ -674,6 +656,19 @@
   .age-range-slider .track {
     background: #aaa;
     border-radius: 1px;
+  }
+
+  .alaska-map, .hawaii-map {
+    width: 125px;
+    height: 125px;
+  }
+
+  .alaska-map {
+    right: 10px;
+  }
+
+  .hawaii-map {
+    right: 140px;
   }
 
 }

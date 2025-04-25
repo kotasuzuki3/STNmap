@@ -29,11 +29,17 @@ export default function Map() {
   const [selectedGender, setSelectedGender] = useState("All");
   const [selectedAgeRange, setSelectedAgeRange] = useState([0, 100]);
   const [mapInitialized, setMapInitialized] = useState(false);
+  const isMobile = window.matchMedia(
+    "(max-device-width: 768px), (max-width: 768px) and (orientation: portrait), (max-height: 500px)"
+  ).matches;
+  const [minimapsVisible, setMinimapsVisible] = useState(!isMobile);
+  const initialZoom = isMobile ? 3 : 5;
 
   const states = [...new Set(heatmapData.map((point) => point.state))].sort();
   const [pendingState, setPendingState] = useState("All");
   const [pendingGender, setPendingGender] = useState("All");
   const [pendingAgeRange, setPendingAgeRange] = useState([0, 100]);
+  const [currentTimelineValue, setCurrentTimelineValue] = useState(100);
 
   const stateCoordinates = {
     AL: { lat: 32.806671, lon: -86.791130 },
@@ -108,7 +114,7 @@ export default function Map() {
 
         map = L.map(mapRef.current, {
           zoomControl: false,
-        }).setView([40.0902, -100.7129], 5);
+        }).setView([40.0902, -100.7129], initialZoom);
 
         const basemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
           attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
@@ -233,6 +239,7 @@ export default function Map() {
     // };
 
   }, []);
+  
 
   const applyFilters = () => {
     let map = mapRef.current
@@ -240,9 +247,9 @@ export default function Map() {
     setSelectedState(pendingState);
 
     if (pendingState !== 'All' && pendingState in stateCoordinates) {
-      map.setView([stateCoordinates[pendingState].lat, stateCoordinates[pendingState].lon], 6);
+      map.setView([stateCoordinates[pendingState].lat, stateCoordinates[pendingState].lon], initialZoom);
     } else {
-      map.setView([40.0902, -100.7129], 5);
+      map.setView([40.0902, -100.7129], initialZoom);
     }
 
     setSelectedGender(pendingGender);
@@ -254,7 +261,7 @@ export default function Map() {
     let map = mapRef.current
     setPendingState("All");
     setSelectedState("All"); 
-    map.setView([40.0902, -100.7129], 5);
+    map.setView([40.0902, -100.7129], initialZoom);
     setPendingGender("All");
     setPendingAgeRange([0, 100]);
     setSelectedGender("All"); 
@@ -290,7 +297,6 @@ export default function Map() {
   const toggleDashboard = () => {
     if (showDashboard) {
       setDashboardVisible(false);
-      clearInterval(autoplayIntervalRef.current); 
     } else {
       setDashboardVisible(true);
     }
@@ -334,13 +340,20 @@ export default function Map() {
         setAutoplay(false);
       }
   
-      if (timeLabelRef.current) {
+      if (timeSliderRef.current && timeLabelRef.current) {
         const currentDateTime = new Date(currentTime);
         const formattedDate = currentDateTime.toLocaleDateString();
+      
+        setCurrentTimelineValue(currentPercentage);
         timeLabelRef.current.textContent = formattedDate;
+      } else {
+        clearInterval(autoplayIntervalRef.current);
+        setAutoplay(false);
       }
   
-      timeSliderRef.current.value = currentPercentage;
+      if (timeSliderRef.current) {
+        setCurrentTimelineValue(currentPercentage);
+      }
   
       try {
         const filteredData = heatmapData.filter(
@@ -521,7 +534,7 @@ export default function Map() {
 
   const handleResetZoom = () => {
     const map = mapRef.current;
-    map.setView([40.0902, -100.7129], 5);
+    map.setView([40.0902, -100.7129], initialZoom);
   
     // Reset Alaska map's view
     if (alaskaMap) {
@@ -572,8 +585,8 @@ export default function Map() {
         </ul>
       </div>
       <div ref={mapRef} className="map"></div>
-      <div id="alaska-map" className="alaska-map"></div>
-      <div id="hawaii-map" className="hawaii-map"></div>
+    <div id="alaska-map" className="alaska-map"></div>
+    <div id="hawaii-map" className="hawaii-map"></div>
       {showDashboard && (
         <div className={`dashboard ${dashboardVisible ? "" : "collapsed"}`}>
           <div className="dashboard-header">
@@ -609,10 +622,13 @@ export default function Map() {
                     min="0"
                     max="100"
                     step="1"
-                    defaultValue="0"
+                    value={currentTimelineValue}
                     className="time-slider"
                     ref={timeSliderRef}
-                    onChange={updateHeatmap}
+                    onChange={(e) => {
+                      setCurrentTimelineValue(e.target.value);
+                      updateHeatmap(parseFloat(e.target.value));
+                    }}
                   />
                   <div className="time-label" ref={timeLabelRef}></div>
                   <img

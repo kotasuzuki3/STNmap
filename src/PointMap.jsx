@@ -27,6 +27,10 @@ export default function PointMap() {
   const [showDashboardContent, setShowDashboardContent] = useState(true);
   const [dashboardVisible, setDashboardVisible] = useState(true);
   const [selectedTime, setSelectedTime] = useState(null);
+  const isMobile = window.matchMedia(
+    "(max-device-width: 768px), (max-width: 768px) and (orientation: portrait), (max-height: 500px)"
+  ).matches;
+  const initialZoom = isMobile ? 3 : 5;
 
   const filterValidData = (data) => {
     const validData = data
@@ -121,6 +125,8 @@ export default function PointMap() {
       selectedYear: "All",
       selectedTime: new Date(Math.max(...validData.map((point) => new Date(point.incident_date)))),
     };
+    
+    map.setView([40.0902, -100.7129], initialZoom);
 
     setPendingFilters(defaultFilters);
     setSelectedState(defaultFilters.selectedState);
@@ -197,16 +203,16 @@ export default function PointMap() {
   };
 
   const handleResetZoom = () => {
-    map.setView([40.0902, -100.7129], 5);
+    map.setView([40.0902, -100.7129], initialZoom);
 
     // Reset Alaska map's view
     if (alaskaMapRef.current) {
-      alaskaMapRef.current.setView([64.2008, -149.4937], 2);
+      alaskaMapRef.current.setView([64.2008, -149.4937], isMobile ? 0 : 2);
     }
 
     // Reset Hawaii map's view
     if (hawaiiMapRef.current) {
-      hawaiiMapRef.current.setView([21.3114, -157.7964], 5);
+      hawaiiMapRef.current.setView([21.3114, -157.7964], isMobile ? 4 : 5);
     }
   };
 
@@ -322,7 +328,7 @@ export default function PointMap() {
     
         const map = L.map(mapRef.current, {
           zoomControl: false,
-        }).setView([40.0902, -100.7129], 5);
+        }).setView([40.0902, -100.7129], initialZoom);
     
         const basemapLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
           attribution: "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ",
@@ -335,7 +341,7 @@ export default function PointMap() {
         const alaskaMap = L.map("alaska-map", {
           zoomControl: false,
           attributionControl: false
-        }).setView([64.2008, -149.4937], 2);
+        }).setView([64.2008, -149.4937], isMobile ? 0 : 2);
         alaskaMapRef.current = alaskaMap;
 
         setTimeout(() => {
@@ -350,7 +356,7 @@ export default function PointMap() {
         const hawaiiMap = L.map("hawaii-map", {
           zoomControl: false,
           attributionControl: false
-        }).setView([21.3114, -157.7964], 5);
+        }).setView([21.3114, -157.7964], isMobile ? 4 : 5);
         hawaiiMapRef.current = hawaiiMap;
 
         setTimeout(() => {
@@ -412,7 +418,7 @@ export default function PointMap() {
 
     if (map) {
       if (selectedState === "All") {
-        map.setView([40.0902, -100.7129], 5);
+        map.setView([40.0902, -100.7129], initialZoom);
       }
     }
 
