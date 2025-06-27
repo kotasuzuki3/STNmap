@@ -5,6 +5,7 @@ import "leaflet.heat";
 import "./index.css";
 import logo from "./assets/logo.png";
 import ReactSlider from "react-slider";
+import Papa from "papaparse";
 
 export default function Map() {
   const mapRef = useRef(null);
@@ -106,9 +107,14 @@ export default function Map() {
 
     const initializeMap = async () => {
       try {
-        const response = await fetch("http://localhost:3001/api/data");
-        const jsonData = await response.json();
-        const validData = filterValidData(jsonData);
+        const response = await fetch("/stn_masterdata.csv");
+        const csvText = await response.text();
+
+        const parsedData = Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+        }).data;
+        const validData = filterValidData(parsedData);
       
         setHeatmapData(validData);
 
@@ -418,9 +424,15 @@ export default function Map() {
 
   const updateHeatmap = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/data");
-      const jsonData = await response.json();
-      const validData = filterValidData(jsonData);
+      const response = await fetch("/stn_masterdata.csv");
+      const csvText = await response.text();
+
+      const parsedData = Papa.parse(csvText, {
+        header: true,
+        skipEmptyLines: true,
+      }).data;
+
+      const validData = filterValidData(parsedData);
       setHeatmapData(validData);
 
       if (heatLayerRef.current) {

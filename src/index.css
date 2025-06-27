@@ -47,7 +47,7 @@
 .dashboard.collapsed {
   width: 0;
   padding: 0;
-  overflow: hidden;
+  overflow: auto;
   background-color: transparent;
   box-shadow: none;
   transition: all 0.3s ease; 
@@ -116,7 +116,7 @@
   padding: 10px;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .blurb:hover {
@@ -331,16 +331,21 @@
   border-radius: 1px;
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-y: auto;  
+  -webkit-overflow-scrolling: touch; 
+}
 
 
-
-/* 📱 Mobile styles only */
 @media only screen and (max-device-width: 768px),
        only screen and (max-width: 768px) and (orientation: portrait),
        only screen and (max-height: 500px) {
 
   .map-container {
-    position: fixed;
+    position: absolute;
     width: 100vw;
     height: 100vh;
   }
@@ -373,6 +378,9 @@
     padding: 10px;
     overflow-y: auto;
     transition: all 0.3s ease;
+    max-height: 100vh;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
   }
 
   .point-view .dashboard {
@@ -386,7 +394,7 @@
   .dashboard.collapsed {
     width: 0;
     padding: 0;
-    overflow: hidden;
+    overflow: auto;
     background-color: transparent;
     box-shadow: none;
     transition: all 0.3s ease; 
@@ -455,7 +463,7 @@
     padding: 10px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-    overflow: hidden;
+    overflow: auto;
   }
   
   .blurb:hover {

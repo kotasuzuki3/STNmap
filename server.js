@@ -26,29 +26,54 @@ client.connect()
   app.get('/api/data', async (req, res) => {
     try {
       const query = `
+      WITH chosen_incident AS (
+        SELECT DISTINCT ON (address_line_one, incident_date)
+          id,
+          address_line_one,
+          latitude,
+          longitude,
+          incident_date,
+          city,
+          state,
+          import_index
+        FROM api_incident
+        ORDER BY address_line_one,
+                 incident_date,
+                 import_index DESC
+      )
       SELECT
-      i.latitude,
-      i.longitude,
-      i.incident_date,
-      i.city,
-      i.state,
-      v.first_name,
-      v.last_name,
-      v.age,
-      CASE
-        WHEN v.gender_id = 0 THEN 'Female'
-        WHEN v.gender_id = 1 THEN 'Transgender'
-        WHEN v.gender_id IN (2, 3, 4) THEN 'Male'
-        WHEN v.gender_id = 5 THEN 'Unknown'
-        ELSE 'N/A'
-      END AS gender,
-      v.bio_info,
-      m.url
-  FROM api_incident i
-  INNER JOIN api_incident_victim iv ON i.id = iv.incident_id
-  INNER JOIN api_victim v ON iv.victim_id = v.id
-  LEFT JOIN api_victim_media_reference vmr ON iv.victim_id = vmr.victim_id
-  LEFT JOIN api_mediareference m ON vmr.mediareference_id = m.id;
+        i.latitude,
+        i.longitude,
+        i.incident_date,
+        i.city,
+        i.state,
+        v.first_name,
+        v.last_name,
+        v.age,
+        CASE
+          WHEN v.gender_id = 0 THEN 'Female'
+          WHEN v.gender_id = 1 THEN 'Transgender'
+          WHEN v.gender_id IN (2,3,4) THEN 'Male'
+          WHEN v.gender_id = 5 THEN 'Unknown'
+          ELSE 'N/A'
+        END AS gender,
+        v.bio_info,
+        m.url
+      FROM chosen_incident i
+        INNER JOIN api_incident_victim iv
+          ON i.id = iv.incident_id
+        INNER JOIN api_victim v
+          ON iv.victim_id = v.id
+        LEFT JOIN (
+          SELECT DISTINCT ON (victim_id) victim_id, mediareference_id
+          FROM api_victim_media_reference
+          ORDER BY victim_id, mediareference_id DESC
+        ) vmr
+          ON v.id = vmr.victim_id
+        LEFT JOIN api_mediareference m
+          ON vmr.mediareference_id = m.id
+      ;
+      
 `;
   
       const result = await client.query(query);

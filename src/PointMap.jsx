@@ -4,6 +4,7 @@ import L from "leaflet";
 import "./index.css";
 import ReactSlider from "react-slider";
 import logo from "./assets/logo.png";
+import Papa from "papaparse";
 
 export default function PointMap() {
   const mapRef = useRef(null);
@@ -34,7 +35,7 @@ export default function PointMap() {
 
   const filterValidData = (data) => {
     const validData = data
-      .filter((point) => point.latitude !== null && point.longitude !== null)
+      .filter((point) => point.latitude && point.longitude)
       .map((point) => ({
         ...point,
         incident_date: new Date(point.incident_date).toISOString().split("T")[0],
@@ -42,8 +43,8 @@ export default function PointMap() {
 
     return validData;
   };
-
   const validData = filterValidData(pointData);  
+
   const stateCoordinates = {
     AL: { lat: 32.806671, lon: -86.79113 },
     AK: { lat: 61.370716, lon: -152.404419 },
@@ -98,7 +99,7 @@ export default function PointMap() {
     WY: { lat: 42.755966, lon: -107.30249 },
   };
 
-  const states = [...new Set(pointData.map((point) => point.state))].sort();
+  const states = [...new Set(validData.map((point) => point.state))].sort();
   const [pendingFilters, setPendingFilters] = useState({
     selectedState,
     selectedGender,
@@ -193,15 +194,6 @@ export default function PointMap() {
     window.open("https://form.jotform.com/231036759147055", "_blank");
   };
 
-  const updateMapWithSelectedTime = (selectedTimestamp) => {
-    const filteredData = validData.filter((point) => {
-      const incidentTimestamp = new Date(point.incident_date).getTime();
-      return incidentTimestamp <= selectedTimestamp;
-    });
-
-    updateMapWithFilteredData(filteredData);
-  };
-
   const handleResetZoom = () => {
     map.setView([40.0902, -100.7129], initialZoom);
 
@@ -293,19 +285,45 @@ export default function PointMap() {
   
   useEffect(() => {
     const initializeMap = async () => {
+      // try {
+      //   const response = await fetch("http://localhost:3001/api/data");
+      //   if (!response.ok) {
+      //     throw new Error(`HTTP error! Status: ${response.status}`);
+      //   }
+      //   const jsonData = await response.json();
+      //   const validData = jsonData
+      //     .filter((point) => point.latitude !== null && point.longitude !== null)
+      //     .map((point) => ({
+      //       ...point,
+      //       incident_date: new Date(point.incident_date).toISOString().split("T")[0],
+      //     }));
+
       try {
-        const response = await fetch("http://localhost:3001/api/data");
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const jsonData = await response.json();
-        const validData = jsonData
+        const response = await fetch("/stn_masterdata.csv");
+        const csvText = await response.text();
+    
+        const parsedData = Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+        }).data;
+    
+        const validData = parsedData
           .filter((point) => point.latitude !== null && point.longitude !== null)
           .map((point) => ({
             ...point,
             incident_date: new Date(point.incident_date).toISOString().split("T")[0],
+            url:
+              point.url && point.url.trim().toUpperCase() !== "NULL" && point.url.trim() !== ""
+                ? point.url
+                : "https://saytheirnames.shinyapps.io/STNWebApp/_w_4d2adf62/0000.jpg",
+            bio_info:
+              point.bio_info && point.bio_info.trim().toUpperCase() !== "NULL" && point.bio_info.trim() !== ""
+                ? point.bio_info
+                : "Biographical information is not available at this time. Please contact STN@nonopera.org if you have information you would like to share.",
           }));
+
         setPointData(validData);
+
 
         const defaultFilters = {
           selectedState: "All",

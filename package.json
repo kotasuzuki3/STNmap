@@ -21,6 +21,7 @@
     "leaflet.zoomslider": "^0.7.1",
     "lodash": "^4.17.21",
     "net": "^1.0.2",
+    "papaparse": "^5.5.3",
     "pg": "^8.11.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
