@@ -107,14 +107,9 @@ export default function Map() {
 
     const initializeMap = async () => {
       try {
-        const response = await fetch("/stn_masterdata.csv");
-        const csvText = await response.text();
-
-        const parsedData = Papa.parse(csvText, {
-          header: true,
-          skipEmptyLines: true,
-        }).data;
-        const validData = filterValidData(parsedData);
+        const response = await fetch("http://localhost:3001/api/data");
+        const jsonData = await response.json();
+        const validData = filterValidData(jsonData);
       
         setHeatmapData(validData);
 
@@ -424,15 +419,9 @@ export default function Map() {
 
   const updateHeatmap = async () => {
     try {
-      const response = await fetch("/stn_masterdata.csv");
-      const csvText = await response.text();
-
-      const parsedData = Papa.parse(csvText, {
-        header: true,
-        skipEmptyLines: true,
-      }).data;
-
-      const validData = filterValidData(parsedData);
+      const response = await fetch("http://localhost:3001/api/data");
+      const jsonData = await response.json();
+      const validData = filterValidData(jsonData);
       setHeatmapData(validData);
 
       if (heatLayerRef.current) {
@@ -447,13 +436,13 @@ export default function Map() {
         ]),
         {
           radius: 10,
-          blur: 3,
+          blur: 1,
           gradient: {
-            0.03: "blue",
-            0.06: "cyan",
-            0.09: "yellow",
-            0.1: "orange",
-            0.15: "red",
+            0.05: "blue",
+            0.1: "cyan",
+            0.15: "yellow",
+            0.2: "orange",
+            0.25: "red",
           },
         }
       );
