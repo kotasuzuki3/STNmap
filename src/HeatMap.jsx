@@ -5,7 +5,6 @@ import "leaflet.heat";
 import "./index.css";
 import logo from "./assets/logo.png";
 import ReactSlider from "react-slider";
-import Papa from "papaparse";
 
 export default function Map() {
   const mapRef = useRef(null);

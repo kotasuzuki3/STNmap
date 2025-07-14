@@ -247,7 +247,7 @@ export default function PointMap() {
         .filter(
           (point) =>
             pendingFilters.selectedYear === "All" ||
-            new Date(point.incident_date).getFullYear() === parseInt(pendingFilters.selectedYear)
+            new Date(point.incident_date + "T00:00:00Z").getUTCFullYear() === parseInt(selectedYear)
         );
   
       filteredData.forEach((point) => {
@@ -290,12 +290,16 @@ export default function PointMap() {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const jsonData = await response.json();
+
+
         const validData = jsonData
           .filter((point) => point.latitude !== null && point.longitude !== null)
           .map((point) => ({
             ...point,
             incident_date: new Date(point.incident_date).toISOString().split("T")[0],
           }));
+
+          console.log("✅ filtered validData:", validData);
 
         setPointData(validData);
 
@@ -498,7 +502,7 @@ export default function PointMap() {
     onChange={(e) => handleSelectedYearChange(e.target.value)}
   >
     <option value="All">All</option>
-    {Array.from(new Set(validData.map((point) => new Date(point.incident_date).getFullYear())))
+    {Array.from(new Set(validData.map(p => new Date(p.incident_date + "T00:00:00Z").getUTCFullYear())))
       .sort()
       .map((year) => (
         <option key={year} value={year}>
